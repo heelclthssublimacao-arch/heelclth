@@ -41,6 +41,32 @@ details{margin-top:10px;}summary{cursor:pointer;font-size:13px;color:#b4b4ba;}
 .it{overflow-x:auto;}table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;}
 td,th{padding:5px 6px;text-align:left;border-bottom:1px solid rgba(255,255,255,.05);}th{color:#8a8a90;font-weight:normal;}
 #nl-badge-frame{display:none !important;}
+.fotoBox{margin:10px 0;}
+.fimg{max-width:100%;max-height:360px;border-radius:10px;border:1px solid rgba(255,255,255,.1);cursor:zoom-in;display:block;}
+label.btn{display:inline-block;}
+.relbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 1rem;}
+#relatorio{position:fixed;inset:0;background:rgba(0,0,0,.75);overflow:auto;z-index:100;padding:16px;}
+#relatorio[hidden]{display:none;}
+.papel{background:#fff;color:#111;max-width:900px;margin:0 auto;padding:24px;border-radius:12px;font-size:13px;}
+.papel h2{margin:0 0 4px;font-size:20px;}.papel h3{margin:18px 0 6px;font-size:15px;border-bottom:2px solid #111;padding-bottom:3px;}
+.papel p{margin:4px 0;color:#444;}
+.papel table{width:100%;border-collapse:collapse;margin-top:6px;}
+.papel td,.papel th{border-bottom:1px solid #ddd;padding:4px 6px;text-align:left;color:#111;font-size:12px;}
+.papel th{background:#f1f1f1;font-weight:bold;}
+.rel-res{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:12px 0;}
+.rel-res div{border:1px solid #ccc;border-radius:8px;padding:8px;color:#444;font-size:12px;}
+.rel-res b{display:block;font-size:20px;color:#111;}
+.rel-enc{margin-top:14px;break-inside:avoid;}
+.rel-h{background:#f1f1f1;padding:6px 8px;border-radius:6px;line-height:1.5;}
+.rel-top{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.papel .btn{background:#111;color:#fff;border:none;}.papel .btn.s{background:#e7e7e7;color:#111;}
+@media print{
+  body{background:#fff;padding:0;}
+  body > *:not(#relatorio){display:none !important;}
+  #relatorio{position:static;background:none;padding:0;overflow:visible;}
+  .no-print{display:none !important;}
+  .papel{padding:0;border-radius:0;}
+}
 .tags{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;}
 .tg{background:#26262e;border-radius:99px;padding:2px 9px;font-size:11px;color:#b4b4ba;}
 .valor{font-size:17px;}
@@ -90,10 +116,15 @@ table.orc{margin-top:12px;}
   </div>
   <div class="meses" id="meses"></div>
   <div class="totais" id="totais"></div>
+  <div class="relbar">
+    <button class="btn p" id="btnRel">Gerar relatório do mês</button>
+    <select id="relFiltro"><option value="feitas">Só encomendas feitas</option><option value="todas">Todas as válidas</option></select>
+  </div>
   <div id="lista"></div>
 </div>
 
 </div>
+<div id="relatorio" hidden></div>
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -129,8 +160,8 @@ $('btnPrecos').onclick = async () => {
 };
 try { $('modo').value = localStorage.getItem('modo') || 'tudo'; } catch(e){}
 
-async function api(corpo){
-  const r = await fetch('/api/painel', {
+async function api(corpo, q=''){
+  const r = await fetch('/api/painel' + q, {
     method: corpo ? 'POST' : 'GET',
     headers: {'x-senha': senha, 'Content-Type': 'application/json'},
     body: corpo ? JSON.stringify(corpo) : undefined
@@ -231,16 +262,20 @@ function render(){
           <label class="muted">Entrega <input type="date" class="en" value="${esc(ent)}"></label>
         </div>
       </div>
-      <details><summary>Abrir pasta da encomenda</summary>
+      <details ${abertas.has(e.key)?'open':''}><summary>Abrir pasta da encomenda${e.foto?' 📷':''}</summary>
         <div class="it"><table><tr><th>Nome</th><th>Nº</th><th>Camisa</th><th>Short</th><th>Obs.</th></tr>
         ${e.itens.map(i=>`<tr><td>${esc(i.nome)}</td><td>${esc(i.numero)}</td><td>${esc(i.tamCamisa||'—')}</td><td>${esc(i.tamShort||'—')}</td><td>${esc(i.obs)}</td></tr>`).join('')}</table></div>
         <table class="orc"><tr><th>Orçamento</th><th style="text-align:right">Valor</th></tr>${o.linhas.map(l=>`<tr><td>${esc(l.d)}</td><td style="text-align:right">${brl(l.v)}</td></tr>`).join('')}<tr><td><b>Total</b></td><td style="text-align:right"><b>${brl(o.total)}</b></td></tr></table>
+        <div style="margin-top:12px;"><div class="muted">Foto da encomenda</div><div class="fotoBox"></div>
+          <div class="acoes"><label class="btn">${e.foto?'Trocar foto':'Adicionar foto'}<input type="file" accept="image/*" class="fin" hidden></label>${e.foto?'<button class="btn r fx">Remover foto</button>':''}</div></div>
         <div class="acoes"><button class="btn csv">Baixar planilha (CSV)</button><button class="btn r exc">Excluir encomenda</button></div>
       </details></div>`;
   }).join('') || `<p class="muted">Nenhuma encomenda em ${MESES[mes-1]} de ${ano}.</p>`;
+  abertas.forEach(k=>mostrarFoto(k));
 }
 
 $('lista').addEventListener('change', async ev => {
+  if(ev.target.classList.contains('fin')) return;
   const card = ev.target.closest('.card'); if(!card) return;
   const e = dados.find(x=>x.key === card.dataset.key);
   e.status = card.querySelector('.st').value; e.entrega = card.querySelector('.en').value;
@@ -261,10 +296,102 @@ $('lista').addEventListener('click', async ev => {
   }
   if(ev.target.closest('.exc')){
     if(!confirm('Excluir esta encomenda para sempre?')) return;
-    try{ await api({acao:'excluir', key:e.key}); dados = dados.filter(x=>x!==e); render(); }
+    try{ await api({acao:'excluir', key:e.key}); dados = dados.filter(x=>x!==e); delete fotos[e.key]; render(); }
     catch(err){ $('st').textContent = 'Não foi possível excluir. Tente de novo.'; }
   }
 });
+
+
+/* ---------- Fotos ---------- */
+const abertas = new Set(), fotos = {};
+async function mostrarFoto(key){
+  const e = dados.find(x=>x.key===key), card = document.querySelector('.card[data-key="'+CSS.escape(key)+'"]');
+  if(!e || !card) return;
+  const box = card.querySelector('.fotoBox'); if(!box) return;
+  if(!e.foto){ box.innerHTML = '<span class="muted">Nenhuma foto adicionada.</span>'; return; }
+  if(!fotos[key]){
+    box.innerHTML = '<span class="muted">Carregando foto...</span>';
+    try{ fotos[key] = (await api(null, '?foto=' + encodeURIComponent(key))).imagem; }
+    catch(err){ box.innerHTML = '<span class="muted">Não foi possível carregar a foto.</span>'; return; }
+  }
+  box.innerHTML = '<img class="fimg" alt="Foto da encomenda" title="Clique para ampliar">'; box.firstChild.src = fotos[key];
+}
+function reduzir(file){
+  return new Promise((res, rej) => {
+    const img = new Image(), u = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, 1400 / Math.max(img.width, img.height)), c = document.createElement('canvas');
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(u); res(c.toDataURL('image/jpeg', 0.82));
+    };
+    img.onerror = () => rej(new Error('imagem')); img.src = u;
+  });
+}
+$('lista').addEventListener('toggle', ev => {
+  const d = ev.target; if(d.tagName !== 'DETAILS') return;
+  const card = d.closest('.card'); if(!card) return;
+  if(d.open){ abertas.add(card.dataset.key); mostrarFoto(card.dataset.key); } else abertas.delete(card.dataset.key);
+}, true);
+$('lista').addEventListener('change', async ev => {
+  if(!ev.target.classList.contains('fin')) return;
+  const card = ev.target.closest('.card'), e = dados.find(x=>x.key === card.dataset.key), f = ev.target.files[0];
+  if(!f) return;
+  const box = card.querySelector('.fotoBox'); box.innerHTML = '<span class="muted">Enviando foto...</span>';
+  try{ const img = await reduzir(f); await api({acao:'foto', key:e.key, imagem:img}); fotos[e.key] = img; e.foto = true; abertas.add(e.key); render(); }
+  catch(err){ box.innerHTML = '<span class="muted">Não foi possível enviar a foto. Tente outra imagem.</span>'; }
+});
+$('lista').addEventListener('click', async ev => {
+  const card = ev.target.closest('.card'); if(!card) return;
+  const e = dados.find(x=>x.key === card.dataset.key);
+  if(ev.target.closest('.fx')){
+    if(!confirm('Remover a foto desta encomenda?')) return;
+    try{ await api({acao:'removerFoto', key:e.key}); e.foto = false; delete fotos[e.key]; render(); }
+    catch(err){ $('st').textContent = 'Não foi possível remover a foto.'; }
+  }
+  if(ev.target.classList.contains('fimg')){ const b = await (await fetch(ev.target.src)).blob(); window.open(URL.createObjectURL(b), '_blank'); }
+});
+
+/* ---------- Relatório do mês ---------- */
+const ORDEM_TAM = ['PP','P','M','G','GG','G1','G2','2','4','6','8','10','12','14','PBABYLOOK','MBABYLOOK','GBABYLOOK','GGBABYLOOK'];
+const tm = t => t ? t.replace('BABYLOOK', ' Babylook') : '—';
+const dmy = s => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? m[3]+'/'+m[2]+'/'+m[1] : '—'; };
+function listaRel(){
+  const so = $('relFiltro').value === 'feitas';
+  return dados.filter(e=>e.ano===ano && e.mes===mes && !e._inv && (!so || e.status==='Feita')).sort((a,b)=>a.criadoEm.localeCompare(b.criadoEm));
+}
+$('btnRel').onclick = () => {
+  marcarRepetidas();
+  const ls = listaRel(), so = $('relFiltro').value === 'feitas';
+  const nc = ls.reduce((a,e)=>a+qCam(e),0), ns = ls.reduce((a,e)=>a+qSho(e),0), val = r2(ls.reduce((a,e)=>a+orcar(e).total,0));
+  const doMes = dados.filter(e=>e.ano===ano && e.mes===mes);
+  const nInv = doMes.filter(e=>e._inv).length, nPend = doMes.filter(e=>!e._inv && e.status!=='Feita').length;
+  const porTam = campo => { const m = {}; ls.forEach(e=>e.itens.forEach(i=>{ if(i[campo]) m[i[campo]] = (m[i[campo]]||0) + 1; }));
+    const a = Object.keys(m).sort((x,y)=>ORDEM_TAM.indexOf(x)-ORDEM_TAM.indexOf(y));
+    return a.length ? `<table><tr>${a.map(k=>`<th>${esc(tm(k))}</th>`).join('')}<th>Total</th></tr><tr>${a.map(k=>`<td>${m[k]}</td>`).join('')}<td><b>${a.reduce((s,k)=>s+m[k],0)}</b></td></tr></table>` : '<p>Nenhuma.</p>'; };
+  $('relatorio').innerHTML = `<div class="papel">
+    <div class="rel-top no-print"><button class="btn" id="relPrint">Imprimir / salvar PDF</button><button class="btn s" id="relCsv">Baixar planilha (CSV)</button><button class="btn s" id="relFechar">Fechar</button></div>
+    <h2>Relatório de produção — ${MESES[mes-1]} de ${ano}</h2>
+    <p>${so ? 'Somente encomendas marcadas como feitas.' : 'Todas as encomendas válidas (feitas e pendentes).'} Gerado em ${new Date().toLocaleDateString('pt-BR')}.</p>
+    ${so && nPend ? `<p>Ainda pendentes neste mês (fora do relatório): ${nPend}.</p>` : ''}${nInv ? `<p>Encomendas não válidas (nome repetido) fora do relatório: ${nInv}.</p>` : ''}
+    <div class="rel-res"><div><b>${ls.length}</b>encomendas</div><div><b>${nc}</b>camisas</div><div><b>${ns}</b>shorts</div><div><b>${brl(val)}</b>valor orçado</div></div>
+    <h3>Camisas por tamanho</h3>${porTam('tamCamisa')}
+    <h3>Shorts por tamanho</h3>${porTam('tamShort')}
+    <h3>Encomendas e linhas</h3>
+    ${ls.map(e=>{ const o = orcar(e); return `<div class="rel-enc"><div class="rel-h"><b>${esc(e.representante)}</b> · Entrega: ${dmy(e.entrega)} · ${esc(e.status)} · ${esc((e.opcoes||[]).map(x=>NOMES[x]||x).join(', ') || 'Camisa padrão')}<br>${qCam(e)} camisas · ${qSho(e)} shorts · ${brl(o.total)}</div>
+      <table><tr><th>Nº</th><th>Nome</th><th>Número</th><th>Camisa</th><th>Short</th><th>Obs.</th></tr>${e.itens.map((i,n)=>`<tr><td>${n+1}</td><td>${esc(i.nome)}</td><td>${esc(i.numero)}</td><td>${esc(tm(i.tamCamisa))}</td><td>${esc(tm(i.tamShort))}</td><td>${esc(i.obs)}</td></tr>`).join('')}</table></div>`; }).join('') || '<p>Nenhuma encomenda neste critério.</p>'}
+  </div>`;
+  $('relatorio').hidden = false; $('relatorio').scrollTop = 0;
+  $('relFechar').onclick = () => { $('relatorio').hidden = true; };
+  $('relPrint').onclick = () => window.print();
+  $('relCsv').onclick = () => {
+    const linhas = [['Mes','Representante','Entrega','Status','Tipos','Nome','Numero','TamanhoCamisa','TamanhoShort','Observacoes']];
+    ls.forEach(e=>e.itens.forEach(i=>linhas.push([MESES[mes-1]+'/'+ano, e.representante, dmy(e.entrega), e.status, (e.opcoes||[]).map(x=>NOMES[x]||x).join(' + ') || 'Camisa padrao', i.nome, i.numero, tm(i.tamCamisa).replace('—',''), tm(i.tamShort).replace('—',''), i.obs])));
+    const csv = '\ufeff' + linhas.map(l=>l.map(c=>'"'+String(c ?? '').replace(/"/g,'""')+'"').join(';')).join('\r\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));
+    a.download = 'relatorio-' + ano + '-' + String(mes).padStart(2,'0') + '.csv'; a.click(); URL.revokeObjectURL(a.href);
+  };
+};
 
 if(senha) carregar(true);
 </script>
