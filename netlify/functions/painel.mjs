@@ -12,15 +12,27 @@ export default async (req) => {
   if (req.headers.get("x-senha") !== senha) return json({ erro: "senha" }, 401);
 
   const store = getStore({ name: "encomendas", consistency: "strong" });
+  const config = getStore({ name: "config", consistency: "strong" });
+  const PADRAO = { camisa: 44.9, camisa_punho: 49.9, camisa_text: 59.9, manga_longa: 0, short: 24.9, short_text: 34.9 };
 
   if (req.method === "GET") {
     const { blobs } = await store.list();
     const lista = (await Promise.all(blobs.map((b) => store.get(b.key, { type: "json" }).catch(() => null)))).filter(Boolean);
-    return json({ encomendas: lista });
+    const precos = { ...PADRAO, ...((await config.get("precos2", { type: "json" }).catch(() => null)) || {}) };
+    return json({ encomendas: lista, precos });
   }
 
   if (req.method === "POST") {
     const d = await req.json().catch(() => ({}));
+    if (d.acao === "precos") {
+      const novo = {};
+      for (const k of Object.keys(PADRAO)) {
+        const v = Number(d.precos?.[k]);
+        novo[k] = Number.isFinite(v) && v > 0 && v < 100000 ? Math.round(v * 100) / 100 : 0;
+      }
+      await config.setJSON("precos2", novo);
+      return json({ ok: true });
+    }
     const key = String(d.key || "");
     if (!/^\d{4}-\d{2}\/[\w-]+$/.test(key)) return json({ erro: "chave" }, 400);
 
