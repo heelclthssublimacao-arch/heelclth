@@ -106,6 +106,34 @@ tr.err{background:rgba(228,88,88,.06);}
 .opt span{display:inline-block;padding:10px 16px;border-radius:99px;background:#1a1a20;border:1px solid rgba(255,255,255,.12);font-size:13px;color:#b4b4ba;}
 .opt input:checked + span{background:#e9e9ec;color:#0a0a0d;border-color:#e9e9ec;font-weight:bold;}
 .opt input:focus-visible + span{outline:2px solid #fff;outline-offset:2px;}
+.m-ico.ask{background:rgba(224,162,58,.16);color:#e0a23a;}
+.m-acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.proto{margin-top:14px;background:#1a1a20;border-radius:10px;padding:12px;font-size:11px;letter-spacing:2px;color:#8a8a90;}
+.proto b{display:block;font-size:24px;letter-spacing:3px;color:#e9e9ec;margin-top:4px;}
+.orc-t{font-size:12px;letter-spacing:1px;color:#8a8a90;text-transform:uppercase;}
+.orc-tab{width:100%;border-collapse:collapse;margin-top:8px;text-align:left;}
+.orc-tab td{padding:7px 4px;border-bottom:1px solid rgba(255,255,255,.07);font-size:13px;color:#d0d0d6;}
+.orc-tab td:last-child{text-align:right;white-space:nowrap;}
+.orc-tab tfoot td{font-size:15px;color:#e9e9ec;border-bottom:none;}
+.orc{margin-top:1rem;background:#15151a;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1rem;}
+.orc[hidden]{display:none;}
+.orc table{width:100%;border-collapse:collapse;margin-top:8px;}
+.orc td{padding:7px 4px;border-bottom:1px solid rgba(255,255,255,.07);font-size:13px;color:#d0d0d6;}
+.orc td:last-child{text-align:right;white-space:nowrap;}
+.orc tfoot td{font-size:16px;color:#e9e9ec;border-bottom:none;}
+.orc .hint{margin-top:6px;}
+.rasc{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:rgba(224,162,58,.1);border:1px solid rgba(224,162,58,.35);border-radius:10px;padding:10px 12px;margin-bottom:1rem;font-size:13px;color:#e8c98a;}
+.rasc[hidden]{display:none;}
+.gol{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:#b4b4ba;white-space:nowrap;}
+.gol input{width:18px;height:18px;accent-color:#e9e9ec;}
+.med-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;margin-top:1rem;}
+.med{background:#15151a;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1rem;}
+.med-t{font-weight:bold;margin-bottom:6px;}
+.med table{width:100%;border-collapse:collapse;}
+.med th,.med td{padding:8px 6px;text-align:left;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px;}
+.med th{color:#8a8a90;font-weight:normal;font-size:11px;letter-spacing:1px;text-transform:uppercase;}
+.med td:first-child{font-weight:bold;}
+.nota{margin-top:1rem;font-size:12px;color:#b4b4ba;}
 .m-brand{display:none;}
 .bottom-nav{display:none;}
 @media(max-width:900px){.ajuda-bottom{grid-template-columns:1fr;}}
@@ -122,17 +150,19 @@ tr.err{background:rgba(228,88,88,.06);}
   .bottom-nav .nav-item{flex:1;justify-content:center;margin:0;font-size:13px;padding:12px 6px;}
   input[type=text],select{font-size:16px;min-height:44px;}
   .panel-table{padding:1rem;}
-  table,tbody{display:block;}
-  thead{display:none;}
-  tbody tr{display:grid;grid-template-columns:1fr 1fr;grid-template-areas:"idx del" "nome nome" "num obs" "cam sho";gap:8px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08);}
-  tbody td{padding:0;display:block;}
-  td:nth-child(1){grid-area:idx;align-self:center;width:auto;}
-  td:nth-child(2){grid-area:nome;}
-  td:nth-child(3){grid-area:num;}
-  td:nth-child(4){grid-area:cam;}
-  td:nth-child(5){grid-area:sho;}
-  td:nth-child(6){grid-area:obs;}
-  td:nth-child(7){grid-area:del;text-align:right;}
+  table.lista,table.lista tbody{display:block;}
+  table.lista thead{display:none;}
+  table.lista tbody tr{display:grid;grid-template-columns:1fr 1fr;grid-template-areas:"idx del" "nome nome" "num gol" "cam sho" "obs obs";gap:8px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08);}
+  table.lista tbody td{padding:0;display:block;}
+  table.lista td:nth-child(1){grid-area:idx;align-self:center;width:auto;}
+  table.lista td:nth-child(2){grid-area:nome;}
+  table.lista td:nth-child(3){grid-area:num;}
+  table.lista td:nth-child(4){grid-area:cam;}
+  table.lista td:nth-child(5){grid-area:sho;}
+  table.lista td:nth-child(6){grid-area:gol;}
+  table.lista td:nth-child(7){grid-area:obs;}
+  table.lista td:nth-child(8){grid-area:del;text-align:right;}
+  .gol{min-height:44px;}
   .del{min-width:44px;min-height:44px;}
   .table-head .btn{flex:1;justify-content:center;}
   .table-foot{flex-direction:column;align-items:stretch;}
@@ -160,9 +190,14 @@ tr.err{background:rgba(228,88,88,.06);}
     <header>SUA IDEIA &nbsp;·&nbsp; NOSSA IMPRESSÃO &nbsp;·&nbsp; RESULTADO EM CAMISAS</header>
     <div class="content" id="view-lista">
       <section class="panel-table">
+        <div class="rasc" id="rasc" hidden><span>Recuperamos o rascunho da sua lista, salvo neste aparelho.</span><button class="btn" id="rascDesc">Descartar</button></div>
         <div class="rep">
           <label for="rep">NOME DO REPRESENTANTE</label>
           <input type="text" id="rep" placeholder="Nome do representante">
+        </div>
+        <div class="rep">
+          <label for="zap">WHATSAPP DO REPRESENTANTE</label>
+          <input type="text" id="zap" inputmode="tel" autocomplete="tel" placeholder="(37) 99999-9999">
         </div>
         <div class="tipo">
           <div class="t">TIPO DE CAMISA <span class="hint">(pode marcar mais de uma)</span></div>
@@ -171,7 +206,7 @@ tr.err{background:rgba(228,88,88,.06);}
             <label class="opt"><input type="checkbox" value="manga_longa"><span>Manga longa</span></label>
             <label class="opt"><input type="checkbox" value="punhos"><span>Personalização de punhos</span></label>
           </div>
-          <div class="hint" style="margin-top:6px;">Vale para todas as camisas deste pedido. Se alguma camisa for diferente das outras, escreva o que muda no campo <strong>Observações</strong> da linha dela. Se não marcar nenhuma opção, o pedido segue como camisa padrão.</div>
+          <div class="hint" style="margin-top:6px;">Vale para todas as camisas deste pedido. Se alguma camisa for diferente das outras, escreva o que muda no campo <strong>Observações</strong> da linha dela. Para a camisa de goleiro, marque a caixa <strong>Goleiro</strong> na linha dele. Se não marcar nenhuma opção, o pedido segue como camisa padrão.</div>
         </div>
         <div class="table-head">
           <div>
@@ -184,10 +219,16 @@ tr.err{background:rgba(228,88,88,.06);}
             <button class="btn" id="btnClear">Limpar</button>
           </div>
         </div>
-        <table>
-          <thead><tr><th>Nº</th><th>NOME</th><th>NÚMERO</th><th>TAM. CAMISA</th><th>TAM. SHORT</th><th>OBSERVAÇÕES</th><th></th></tr></thead>
+        <table class="lista">
+          <thead><tr><th>Nº</th><th>NOME</th><th>NÚMERO</th><th>TAM. CAMISA</th><th>TAM. SHORT</th><th>GOLEIRO</th><th>OBSERVAÇÕES</th><th></th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
+        <div class="orc" id="orcBox" hidden>
+          <div class="orc-t">Orçamento</div>
+          <table><tbody id="orcLinhas"></tbody><tfoot><tr><td><b>Total</b></td><td><b id="orcTotal"></b></td></tr></tfoot></table>
+          <div class="hint" id="orcNota" hidden>Manga longa: o valor será combinado com a nossa equipe e não está somado ao total.</div>
+          <div class="hint">Calculado com as camisas e os shorts preenchidos e o tipo de camisa escolhido.</div>
+        </div>
         <div class="table-foot">
           <div class="prog" id="prog">
             <div class="prog-top"><span>Camisas: <strong id="nCam">0</strong> de <span id="minTxt">10</span> (mínimo)</span><span>Shorts: <strong id="nSho">0</strong></span></div>
@@ -210,9 +251,16 @@ tr.err{background:rgba(228,88,88,.06);}
     </div>
 
     <div class="content" id="view-modelos" style="display:none">
-      <section class="panel-table" style="align-items:center;justify-content:center;min-height:300px;">
-        <p class="table-title" style="font-size:20px;margin-bottom:6px;">Modelos</p>
-        <p class="table-sub" style="font-size:18px;">Em breve</p>
+      <section class="panel-table">
+        <p class="table-title">Tabela de medidas</p>
+        <p class="table-sub">Medidas de cada tamanho, em centímetros. Use para escolher o tamanho certo antes de preencher a lista.</p>
+        <div class="med-grid">
+          <div class="med"><div class="med-t">Camisa</div>
+            <table><thead><tr><th>Tamanho</th><th>Largura</th><th>Comprimento</th></tr></thead><tbody><tr><td>PP</td><td>50,5 cm</td><td>70 cm</td></tr><tr><td>P</td><td>52,5 cm</td><td>71 cm</td></tr><tr><td>M</td><td>53,5 cm</td><td>73 cm</td></tr><tr><td>G</td><td>55,5 cm</td><td>76 cm</td></tr><tr><td>GG</td><td>58,5 cm</td><td>79 cm</td></tr><tr><td>G1</td><td>61 cm</td><td>81 cm</td></tr><tr><td>G2</td><td>63 cm</td><td>82 cm</td></tr><tr><td>G3</td><td>65,5 cm</td><td>83 cm</td></tr><tr><td>G4</td><td>68 cm</td><td>84 cm</td></tr><tr><td>G5 (extra)</td><td>75 cm</td><td>86 cm</td></tr></tbody></table></div>
+          <div class="med"><div class="med-t">Baby look</div>
+            <table><thead><tr><th>Tamanho</th><th>Largura</th><th>Altura</th></tr></thead><tbody><tr><td>P</td><td>44 cm</td><td>55 cm</td></tr><tr><td>M</td><td>46 cm</td><td>57 cm</td></tr><tr><td>G</td><td>48 cm</td><td>58,5 cm</td></tr><tr><td>GG</td><td>50,5 cm</td><td>60 cm</td></tr></tbody></table></div>
+        </div>
+        <p class="nota">As medidas podem variar cerca de 2 cm para mais ou para menos na hora de sublimar, por causa da temperatura.</p>
       </section>
     </div>
 
@@ -232,10 +280,10 @@ tr.err{background:rgba(228,88,88,.06);}
         <div class="ajuda-grid">
           <details class="card guia"><summary>Guia Rápido</summary>
             <ol>
-              <li>Digite o <strong>nome do representante</strong> no campo do topo da página.</li>
+              <li>Digite o <strong>nome</strong> e o <strong>WhatsApp</strong> do representante nos campos do topo da página.</li>
               <li>Preencha o <strong>nome</strong>, o <strong>número</strong> e o tamanho da <strong>camisa</strong> e/ou do <strong>short</strong> de cada pessoa. Se ela não terá uma das peças, deixe "Sem camisa" ou "Sem short".</li>
-              <li>Confira o contador no rodapé: o pedido precisa ter no <strong>mínimo 10 camisas</strong> (os shorts não entram nessa conta).</li>
-              <li>Clique em <strong>Enviar lista preenchida</strong>. Pronto: a lista chega direto para nós, sem precisar abrir o seu e-mail.</li>
+              <li>Confira o contador no rodapé: o pedido precisa ter no <strong>mínimo 10 camisas</strong> (os shorts não entram nessa conta). O <strong>orçamento detalhado</strong> aparece logo abaixo da tabela.</li>
+              <li>Clique em <strong>Enviar lista preenchida</strong>. Pronto: a lista chega direto para nós e você recebe um <strong>número de protocolo</strong> com o orçamento.</li>
             </ol>
             <p>Se algo estiver faltando, o site abre um aviso explicando o que corrigir e marca a linha em vermelho.</p>
           </details>
@@ -244,24 +292,25 @@ tr.err{background:rgba(228,88,88,.06);}
             <ul>
               <li><strong>Nome:</strong> o nome que será impresso.</li>
               <li><strong>Número:</strong> o número da camisa.</li>
-              <li><strong>Tam. Camisa:</strong> escolha na lista (PP ao GG, G1, G2, infantis de 2 a 14 e Babylook). Se a pessoa não terá camisa, deixe "Sem camisa".</li>
+              <li><strong>Tam. Camisa:</strong> escolha na lista (PP ao G5 extra, infantis de 2 a 14 e Babylook). Se a pessoa não terá camisa, deixe "Sem camisa".</li>
               <li><strong>Tam. Short:</strong> mesma lista. Se a pessoa não terá short, deixe "Sem short". Cada pessoa precisa de pelo menos uma das duas peças.</li>
+              <li><strong>Goleiro:</strong> marque a caixa na linha da camisa de goleiro.</li>
               <li><strong>Observações:</strong> campo livre, opcional, para qualquer detalhe.</li>
             </ul>
-            <p>Quando você começa a digitar na última linha, uma nova linha em branco aparece sozinha. Para apagar uma linha, use o ícone da lixeira. O botão <strong>Limpar</strong> apaga a tabela inteira. O pedido precisa ter no mínimo 10 camisas; os shorts não contam para esse mínimo.</p>
+            <p>Quando você começa a digitar na última linha, uma nova linha em branco aparece sozinha. Para apagar uma linha, use o ícone da lixeira. O botão <strong>Limpar</strong> pede confirmação e apaga a tabela inteira. O que você preenche fica salvo neste aparelho como rascunho, então não se perde se a página fechar. O pedido precisa ter no mínimo 10 camisas; os shorts não contam para esse mínimo.</p>
           </details>
           <details class="card guia"><summary>Como Importar CSV</summary>
             <p>Se você já tem a lista pronta no Excel ou Google Planilhas, não precisa digitar de novo.</p>
             <ol>
-              <li>Monte a planilha com as colunas nesta ordem: <strong>Nome, Numero, TamanhoCamisa, TamanhoShort, Observações</strong>. Deixe vazio o tamanho da peça que a pessoa não vai ter.</li>
+              <li>Monte a planilha com as colunas nesta ordem: <strong>Nome, Numero, TamanhoCamisa, TamanhoShort, Observações, Goleiro</strong> (a última é opcional: escreva SIM na linha do goleiro). Deixe vazio o tamanho da peça que a pessoa não vai ter.</li>
               <li>Salve como <strong>CSV</strong> (Arquivo → Salvar como ou Fazer download → CSV).</li>
               <li>No site, clique em <strong>Importar (.csv)</strong> e escolha o arquivo.</li>
             </ol>
             <p>Use os tamanhos como aparecem na lista (por exemplo M, GG, 10 ou PBABYLOOK). A primeira linha pode ser o cabeçalho, desde que comece com "Nome". Atenção: a importação substitui as linhas que já estavam na tabela. Confira os dados antes de enviar.</p>
           </details>
-          <details class="card guia"><summary>Como Usar Modelos</summary>
-            <p>A aba <strong>Modelos</strong> ainda está em desenvolvimento e aparece como "Em breve". Quando estiver disponível, você poderá escolher o modelo da camisa ou do short direto por ali.</p>
-            <p>Enquanto isso, se você já sabe qual modelo quer, é só combinar com a nossa equipe pelo WhatsApp ou e-mail, e enviar a lista normalmente.</p>
+          <details class="card guia"><summary>Tabela de Medidas</summary>
+            <p>A aba <strong>Modelos</strong> mostra a <strong>tabela de medidas</strong> de cada tamanho (largura e comprimento), para você escolher o tamanho certo antes de preencher a lista.</p>
+            <p>As medidas podem variar cerca de 2 cm para mais ou para menos na sublimação, por causa da temperatura. Dúvidas sobre modelo ou tamanho? Fale com a nossa equipe pelo WhatsApp.</p>
           </details>
           <details class="card guia"><summary>Dúvidas Frequentes</summary>
             <p>As respostas para as perguntas mais comuns estão logo abaixo, na seção <strong>Perguntas Frequentes</strong>. Basta clicar na pergunta para ver a resposta.</p>
@@ -294,7 +343,7 @@ tr.err{background:rgba(228,88,88,.06);}
             <div class="faq-item"><button class="faq-q">Como importar uma lista CSV? <span>⌄</span></button>
               <p class="faq-a">Clique em "Importar (.csv)" e selecione um arquivo com as colunas Nome, Numero, TamanhoCamisa, TamanhoShort e Observações. As linhas existentes são substituídas pelas do arquivo.</p></div>
             <div class="faq-item"><button class="faq-q">Como enviar a lista? <span>⌄</span></button>
-              <p class="faq-a">Informe o nome do representante, preencha a tabela e clique em "Enviar lista preenchida". O pedido precisa ter pelo menos 10 camisas (shorts não contam). A lista chega direto para nós, sem abrir seu e-mail.</p></div>
+              <p class="faq-a">Informe o nome e o WhatsApp do representante, preencha a tabela e clique em "Enviar lista preenchida". O pedido precisa ter pelo menos 10 camisas (shorts não contam). A lista chega direto para nós, sem abrir seu e-mail.</p></div>
             <div class="faq-item"><button class="faq-q">Como gerar a lista para colar? <span>⌄</span></button>
               <p class="faq-a">Depois de preencher a tabela, clique em "Gerar lista para colar" e depois em "Copiar". Cole o texto direto na janela do macro do CorelDRAW.</p></div>
           </div>
@@ -317,7 +366,8 @@ tr.err{background:rgba(228,88,88,.06);}
     <h3 id="mTit"></h3>
     <p id="mTxt"></p>
     <ul id="mLista"></ul>
-    <div class="m-acts"><button class="btn btn-primary" id="mOk">Entendi</button></div>
+    <div id="mExtra"></div>
+    <div class="m-acts"><button class="btn" id="mCancel" hidden>Cancelar</button><button class="btn btn-primary" id="mOk">Entendi</button></div>
   </div>
 </div>
 <nav class="bottom-nav">
@@ -327,22 +377,35 @@ tr.err{background:rgba(228,88,88,.06);}
 </nav>
 <script>
 const MIN_CAMISAS = 10;
-
 const $ = id => document.getElementById(id);
 document.querySelector('.m-brand img').src = document.querySelector('.logo img').src;
-const TAMANHOS = [["PP","PP"],["P","P"],["M","M"],["G","G"],["GG","GG"],["G1","G1"],["G2","G2"],["2","2"],["4","4"],["6","6"],["8","8"],["10","10"],["12","12"],["14","14"],["PBABYLOOK","P Babylook"],["MBABYLOOK","M Babylook"],["GBABYLOOK","G Babylook"],["GGBABYLOOK","GG Babylook"]];
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const brl = v => Number(v||0).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+const r2 = v => Math.round(v * 100) / 100;
+function orcar(precos, opcoes, nc, ns){
+  const tex = opcoes.includes('texturizada'), pun = opcoes.includes('punhos'), man = opcoes.includes('manga_longa');
+  const pl = (n, s, p) => n === 1 ? s : p, linhas = [];
+  const pc = tex ? precos.camisa_text : precos.camisa;
+  linhas.push({d:`${nc} ${pl(nc,'camisa','camisas')} ${tex ? pl(nc,'texturizada','texturizadas') : 'tecido padrão'} × ${brl(pc)}`, v:r2(nc*pc)});
+  if(pun){ const dif = r2(precos.camisa_punho - precos.camisa); linhas.push({d:`Personalização de punhos: ${nc} × ${brl(dif)}`, v:r2(nc*dif)}); }
+  if(man){ if(precos.manga_longa > 0) linhas.push({d:`Manga longa: ${nc} × ${brl(precos.manga_longa)}`, v:r2(nc*precos.manga_longa)}); else linhas.push({d:'Manga longa: valor a combinar', v:0, combinar:true}); }
+  if(ns){ const ps = tex ? precos.short_text : precos.short; linhas.push({d:`${ns} ${pl(ns,'short','shorts')}${tex ? ' texturizado' + (ns===1?'':'s') : ''} × ${brl(ps)}`, v:r2(ns*ps)}); }
+  return {linhas, total:r2(linhas.reduce((a,l)=>a+l.v,0)), aCombinar:linhas.some(l=>l.combinar)};
+}
+
+const TAMANHOS = [["PP","PP"],["P","P"],["M","M"],["G","G"],["GG","GG"],["G1","G1"],["G2","G2"],["G3","G3"],["G4","G4"],["G5","G5 (extra)"],["2","2"],["4","4"],["6","6"],["8","8"],["10","10"],["12","12"],["14","14"],["PBABYLOOK","P Babylook"],["MBABYLOOK","M Babylook"],["GBABYLOOK","G Babylook"],["GGBABYLOOK","GG Babylook"]];
+const NOMES_TIPO = {texturizada:'Texturizada', manga_longa:'Manga longa', punhos:'Personalização de punhos'};
 const tbody = $('rows');
-let rowCount = 0;
+let rowCount = 0, precos = null, resolverConfirm = null;
 $('minTxt').textContent = MIN_CAMISAS;
-
 const opts = vazio => `<option value="">${vazio}</option>` + TAMANHOS.map(([v,l])=>`<option value="${v}">${l}</option>`).join('');
+const opcoesMarcadas = () => [...document.querySelectorAll('#opts input:checked')].map(i=>i.value);
 
-/* ---------- Aviso (modal) ---------- */
-function aviso({tipo='erro', titulo, texto='', itens=[], botao='Entendi'}){
+/* ---------- Avisos (janela do site) ---------- */
+function aviso({tipo='erro', titulo, texto='', itens=[], html='', botao='Entendi'}){
   $('mIco').className = 'm-ico ' + tipo;
-  $('mIco').textContent = tipo === 'ok' ? '✓' : '!';
-  $('mTit').textContent = titulo;
-  $('mTxt').textContent = texto;
+  $('mIco').textContent = tipo === 'ok' ? '✓' : (tipo === 'ask' ? '?' : '!');
+  $('mTit').textContent = titulo; $('mTxt').textContent = texto;
   const ul = $('mLista'); ul.innerHTML = '';
   itens.forEach(it=>{
     const li = document.createElement('li');
@@ -350,24 +413,30 @@ function aviso({tipo='erro', titulo, texto='', itens=[], botao='Entendi'}){
     const sp = document.createElement('span'); sp.textContent = it.dica || '';
     li.append(b, sp);
     if(it.el){
-      const bt = document.createElement('button');
-      bt.className = 'btn'; bt.textContent = 'Ir para o campo';
+      const bt = document.createElement('button'); bt.className = 'btn'; bt.textContent = 'Ir para o campo';
       bt.onclick = ()=>{ fechar(); it.el.scrollIntoView({block:'center',behavior:'smooth'}); setTimeout(()=>it.el.focus({preventScroll:true}),350); };
       li.append(bt);
     }
     ul.append(li);
   });
-  $('mOk').textContent = botao;
-  $('ov').hidden = false;
-  $('mOk').focus();
+  $('mExtra').innerHTML = html; $('mCancel').hidden = true;
+  $('mOk').textContent = botao; $('mOk').onclick = fechar;
+  $('ov').hidden = false; $('mOk').focus();
 }
-function fechar(){ $('ov').hidden = true; }
-$('mOk').addEventListener('click', fechar);
+function fechar(){ $('ov').hidden = true; $('mCancel').hidden = true; if(resolverConfirm){ const r = resolverConfirm; resolverConfirm = null; r(false); } }
+function confirmar({titulo, texto, sim='Sim', nao='Cancelar'}){
+  return new Promise(res=>{
+    aviso({tipo:'ask', titulo, texto, botao:sim});
+    resolverConfirm = res; $('mCancel').textContent = nao; $('mCancel').hidden = false;
+    $('mOk').onclick = ()=>{ resolverConfirm = null; $('ov').hidden = true; $('mCancel').hidden = true; res(true); };
+  });
+}
+$('mCancel').addEventListener('click', fechar);
 $('ov').addEventListener('click', e=>{ if(e.target === $('ov')) fechar(); });
 document.addEventListener('keydown', e=>{ if(e.key === 'Escape') fechar(); });
 
 /* ---------- Tabela ---------- */
-function addRow(nome='', numero='', cam='', sho='', obs=''){
+function addRow(nome='', numero='', cam='', sho='', obs='', gol=false){
   rowCount++;
   const tr = document.createElement('tr');
   tr.innerHTML = `
@@ -376,54 +445,80 @@ function addRow(nome='', numero='', cam='', sho='', obs=''){
     <td><input type="text" class="f-num" placeholder="Número"></td>
     <td><select class="f-cam" aria-label="Tamanho da camisa">${opts('Sem camisa')}</select></td>
     <td><select class="f-sho" aria-label="Tamanho do short">${opts('Sem short')}</select></td>
+    <td><label class="gol"><input type="checkbox" class="f-gol"><span>Goleiro</span></label></td>
     <td><input type="text" class="f-obs" placeholder="Observações"></td>
     <td><button class="del" title="Remover" aria-label="Remover linha"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button></td>`;
-  tr.querySelector('.f-nome').value = nome;
-  tr.querySelector('.f-num').value = numero;
-  tr.querySelector('.f-cam').value = cam;
-  tr.querySelector('.f-sho').value = sho;
-  tr.querySelector('.f-obs').value = obs;
+  tr.querySelector('.f-nome').value = nome; tr.querySelector('.f-num').value = numero;
+  tr.querySelector('.f-cam').value = cam; tr.querySelector('.f-sho').value = sho;
+  tr.querySelector('.f-obs').value = obs; tr.querySelector('.f-gol').checked = !!gol;
   tbody.appendChild(tr);
   return tr;
 }
 function ler(tr){
   const v = c => tr.querySelector(c).value.trim();
-  return {tr, nome:v('.f-nome'), numero:v('.f-num'), cam:v('.f-cam'), sho:v('.f-sho'), obs:v('.f-obs')};
+  return {tr, nome:v('.f-nome'), numero:v('.f-num'), cam:v('.f-cam'), sho:v('.f-sho'), obs:v('.f-obs'), gol:tr.querySelector('.f-gol').checked};
 }
 const iniciada = r => r.nome || r.numero || r.cam || r.sho || r.obs;
 const completa = r => r.nome && r.numero && (r.cam || r.sho);
 const todas = () => [...tbody.querySelectorAll('tr')].map(ler);
 const validas = () => todas().filter(completa);
-
 function renumerar(){ tbody.querySelectorAll('tr').forEach((tr,i)=>{ tr.querySelector('.idx').textContent = (i+1)+'.'; }); }
-function garantirLinhaVazia(){
-  const t = todas();
-  if(t.length === 0 || iniciada(t[t.length-1])) addRow();
-  renumerar();
-}
+function garantirLinhaVazia(){ const t = todas(); if(t.length === 0 || iniciada(t[t.length-1])) addRow(); renumerar(); }
+
 function atualizarTotal(){
-  const v = validas();
-  const nc = v.filter(r=>r.cam).length, ns = v.filter(r=>r.sho).length;
+  const v = validas(), nc = v.filter(r=>r.cam).length, ns = v.filter(r=>r.sho).length;
   $('nCam').textContent = nc; $('nSho').textContent = ns;
   $('barra').style.width = Math.min(100, nc / MIN_CAMISAS * 100) + '%';
   $('prog').classList.toggle('ok', nc >= MIN_CAMISAS);
+  atualizarOrcamento(nc, ns);
+}
+function atualizarOrcamento(nc, ns){
+  const box = $('orcBox');
+  if(!precos || nc + ns === 0){ box.hidden = true; return; }
+  const o = orcar(precos, opcoesMarcadas(), nc, ns);
+  $('orcLinhas').innerHTML = o.linhas.map(l=>`<tr><td>${esc(l.d)}</td><td>${l.combinar ? 'a combinar' : brl(l.v)}</td></tr>`).join('');
+  $('orcTotal').textContent = brl(o.total); $('orcNota').hidden = !o.aCombinar; box.hidden = false;
+}
+
+/* ---------- Rascunho (salvo neste aparelho) ---------- */
+const K_RASC = 'hc_rascunho_v1'; let tRasc = null;
+function salvarRascunho(){
+  clearTimeout(tRasc);
+  tRasc = setTimeout(()=>{ try{
+    const rows = todas().filter(r=>iniciada(r) || r.gol).map(r=>({nome:r.nome,numero:r.numero,cam:r.cam,sho:r.sho,obs:r.obs,gol:r.gol}));
+    const d = {rep:$('rep').value, zap:$('zap').value, opts:opcoesMarcadas(), rows};
+    if(!d.rep && !d.zap && !d.opts.length && !rows.length) localStorage.removeItem(K_RASC); else localStorage.setItem(K_RASC, JSON.stringify(d));
+  }catch(e){} }, 400);
+}
+function limparRascunho(){ clearTimeout(tRasc); try{ localStorage.removeItem(K_RASC); }catch(e){} }
+function restaurar(){
+  try{
+    const d = JSON.parse(localStorage.getItem(K_RASC) || 'null');
+    if(!d || !(d.rep || d.zap || (d.opts||[]).length || (d.rows||[]).length)) return false;
+    $('rep').value = d.rep || ''; $('zap').value = d.zap || '';
+    document.querySelectorAll('#opts input').forEach(i=>{ i.checked = (d.opts||[]).includes(i.value); });
+    tbody.innerHTML = ''; rowCount = 0;
+    (d.rows||[]).forEach(r=>addRow(r.nome, r.numero, r.cam, r.sho, r.obs, r.gol));
+    garantirLinhaVazia(); while(tbody.querySelectorAll('tr').length < 5) addRow();
+    renumerar(); $('rasc').hidden = false; return true;
+  }catch(e){ return false; }
 }
 function onEdit(e){
   e.target.classList.remove('invalid');
   const tr = e.target.closest('tr'); if(tr) tr.classList.remove('err');
-  garantirLinhaVazia(); atualizarTotal();
+  garantirLinhaVazia(); atualizarTotal(); salvarRascunho();
 }
 tbody.addEventListener('input', onEdit);
 tbody.addEventListener('change', onEdit);
-tbody.addEventListener('click', e=>{
-  const b = e.target.closest('.del'); if(!b) return;
-  b.closest('tr').remove(); garantirLinhaVazia(); atualizarTotal();
+tbody.addEventListener('click', e=>{ const b = e.target.closest('.del'); if(!b) return; b.closest('tr').remove(); garantirLinhaVazia(); atualizarTotal(); salvarRascunho(); });
+$('opts').addEventListener('change', ()=>{ atualizarTotal(); salvarRascunho(); });
+$('rep').addEventListener('input', e=>{ e.target.classList.remove('invalid'); salvarRascunho(); });
+$('zap').addEventListener('input', e=>{
+  let d = e.target.value.replace(/\D/g,''); if(d.startsWith('55') && d.length > 11) d = d.slice(2); d = d.slice(0,11);
+  e.target.value = d.length > 7 ? `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}` : d.length > 2 ? `(${d.slice(0,2)}) ${d.slice(2)}` : d;
+  e.target.classList.remove('invalid'); salvarRascunho();
 });
-function reiniciar(){
-  tbody.innerHTML = ''; rowCount = 0;
-  for(let i=0;i<5;i++) addRow();
-  atualizarTotal(); $('exportBox').style.display = 'none';
-}
+function reiniciar(){ tbody.innerHTML = ''; rowCount = 0; for(let i=0;i<5;i++) addRow(); atualizarTotal(); $('exportBox').style.display = 'none'; }
 
 /* ---------- Validação ---------- */
 const juntar = a => a.length < 2 ? a.join('') : a.slice(0,-1).join(', ') + ' e ' + a[a.length-1];
@@ -432,11 +527,9 @@ function validar(){
   document.querySelectorAll('tr.err').forEach(x=>x.classList.remove('err'));
   const probs = [], ok = [];
   const marcar = (el, tr) => { el.classList.add('invalid'); tr.classList.add('err'); };
-
-  if(!$('rep').value.trim()){
-    $('rep').classList.add('invalid');
-    probs.push({msg:'Falta o nome do representante', dica:'Digite, no campo do topo da página, o nome de quem está enviando esta lista.', el:$('rep')});
-  }
+  if(!$('rep').value.trim()){ $('rep').classList.add('invalid'); probs.push({msg:'Falta o nome do representante', dica:'Digite, no campo do topo da página, o nome de quem está enviando esta lista.', el:$('rep')}); }
+  const tel = $('zap').value.replace(/\D/g,'');
+  if(tel.length < 10){ $('zap').classList.add('invalid'); probs.push({msg: tel ? 'WhatsApp incompleto' : 'Falta o WhatsApp do representante', dica:'Digite o número com DDD, por exemplo (37) 99999-9999. Ele serve para falarmos com você sobre o pedido.', el:$('zap')}); }
   todas().forEach((r,i)=>{
     if(!iniciada(r)) return;
     const falta = []; let primeiro = null; const dicas = [];
@@ -444,23 +537,16 @@ function validar(){
     if(!r.numero){ falta.push('o número'); marcar(r.tr.querySelector('.f-num'), r.tr); primeiro = primeiro || r.tr.querySelector('.f-num'); }
     if(!r.cam && !r.sho){
       falta.push('o tamanho da camisa ou do short');
-      marcar(r.tr.querySelector('.f-cam'), r.tr); marcar(r.tr.querySelector('.f-sho'), r.tr);
-      primeiro = primeiro || r.tr.querySelector('.f-cam');
+      marcar(r.tr.querySelector('.f-cam'), r.tr); marcar(r.tr.querySelector('.f-sho'), r.tr); primeiro = primeiro || r.tr.querySelector('.f-cam');
       dicas.push('Escolha o tamanho de pelo menos uma peça. "Sem camisa" ou "Sem short" só deve ficar na peça que a pessoa não terá.');
     }
-    if(falta.length){
-      probs.push({msg:`Linha ${i+1}: falta ${juntar(falta)}`, dica: dicas.join(' ') || 'Preencha o campo marcado em vermelho nessa linha.', el:primeiro});
-    } else ok.push(r);
+    if(falta.length) probs.push({msg:`Linha ${i+1}: falta ${juntar(falta)}`, dica: dicas.join(' ') || 'Preencha o campo marcado em vermelho nessa linha.', el:primeiro});
+    else ok.push(r);
   });
   const nc = ok.filter(r=>r.cam).length, ns = ok.filter(r=>r.sho).length;
   if(nc < MIN_CAMISAS){
-    const alvo = ok.find(r=>!r.cam);
-    const ultima = tbody.querySelector('tr:last-child .f-nome');
-    probs.push({
-      msg:`Mínimo de ${MIN_CAMISAS} camisas: você tem ${nc}`,
-      dica:`Faltam ${MIN_CAMISAS-nc}. Cada pessoa com tamanho em "Camisa" conta como uma. Os shorts não entram nessa conta.`,
-      el: alvo ? alvo.tr.querySelector('.f-cam') : ultima
-    });
+    const alvo = ok.find(r=>!r.cam), ultima = tbody.querySelector('tr:last-child .f-nome');
+    probs.push({msg:`Mínimo de ${MIN_CAMISAS} camisas: você tem ${nc}`, dica:`Faltam ${MIN_CAMISAS-nc}. Cada pessoa com tamanho em "Camisa" conta como uma. Os shorts não entram nessa conta.`, el: alvo ? alvo.tr.querySelector('.f-cam') : ultima});
   }
   return {probs, ok, nc, ns};
 }
@@ -476,62 +562,68 @@ $('csvInput').addEventListener('change', e=>{
       const c = l.split(/[,;]/).map(x=>x.trim().replace(/^"|"$/g,''));
       if(/^nome$/i.test(c[0])) return;
       const tam = x => (x||'').toUpperCase().replace(/\s+/g,'');
-      addRow(c[0]||'', c[1]||'', tam(c[2]), tam(c[3]), c[4]||'');
+      addRow(c[0]||'', c[1]||'', tam(c[2]), tam(c[3]), c[4]||'', /^(s|sim|x|1|goleiro)$/i.test(c[5]||''));
     });
-    garantirLinhaVazia(); atualizarTotal();
+    garantirLinhaVazia(); atualizarTotal(); salvarRascunho();
   };
-  reader.readAsText(file);
-  e.target.value = '';
+  reader.readAsText(file); e.target.value = '';
 });
-$('btnClear').addEventListener('click', ()=>{ reiniciar(); });
-
+$('btnClear').addEventListener('click', async ()=>{
+  if(todas().some(r=>iniciada(r) || r.gol)){
+    const sim = await confirmar({titulo:'Limpar a lista?', texto:'Todas as linhas da tabela serão apagadas. Isso não pode ser desfeito.', sim:'Sim, limpar', nao:'Cancelar'});
+    if(!sim) return;
+  }
+  reiniciar(); salvarRascunho();
+});
+$('rascDesc').addEventListener('click', async ()=>{
+  const sim = await confirmar({titulo:'Descartar o rascunho?', texto:'Vamos apagar o que foi recuperado e começar uma lista nova.', sim:'Sim, descartar', nao:'Manter'});
+  if(!sim) return;
+  reiniciar(); $('rep').value = ''; $('zap').value = ''; document.querySelectorAll('#opts input').forEach(i=>i.checked=false);
+  limparRascunho(); $('rasc').hidden = true; atualizarTotal();
+});
 $('btnGerar').addEventListener('click', ()=>{
   const v = validas();
-  if(v.length === 0){
-    aviso({titulo:'Nada para gerar ainda', texto:'Preencha pelo menos uma pessoa com nome, número e o tamanho da camisa ou do short.'});
-    return;
-  }
-  $('exportText').value = v.map(r=>[r.nome, r.numero, r.cam, r.obs, r.sho].join('\t')).join('\n');
+  if(v.length === 0){ aviso({titulo:'Nada para gerar ainda', texto:'Preencha pelo menos uma pessoa com nome, número e o tamanho da camisa ou do short.'}); return; }
+  $('exportText').value = v.map(r=>[r.nome, r.numero, r.cam, (r.obs + (r.gol ? ' GOLEIRO' : '')).trim(), r.sho].join('\t')).join('\n');
   $('exportBox').style.display = 'block';
 });
 
+function tabelaOrc(o){
+  return `<table class="orc-tab"><tbody>${o.linhas.map(l=>`<tr><td>${esc(l.d)}</td><td>${l.combinar ? 'a combinar' : brl(l.v)}</td></tr>`).join('')}</tbody><tfoot><tr><td><b>Total</b></td><td><b>${brl(o.total)}</b></td></tr></tfoot></table>${o.aCombinar ? '<div class="hint" style="text-align:left">Manga longa: o valor será combinado com a nossa equipe e não está somado ao total.</div>' : ''}`;
+}
 $('btnEnviar').addEventListener('click', async ()=>{
   const {probs, ok, nc, ns} = validar();
   if(probs.length){
-    aviso({
-      titulo: probs.length === 1 ? 'Falta um ajuste antes de enviar' : `Faltam ${probs.length} ajustes antes de enviar`,
-      texto: 'Veja abaixo o que precisa ser corrigido. Os campos também ficaram marcados em vermelho na tabela.',
-      itens: probs, botao: 'Vou corrigir'
-    });
+    aviso({titulo: probs.length === 1 ? 'Falta um ajuste antes de enviar' : `Faltam ${probs.length} ajustes antes de enviar`, texto:'Veja abaixo o que precisa ser corrigido. Os campos também ficaram marcados em vermelho na tabela.', itens:probs, botao:'Vou corrigir'});
     return;
   }
-  const representante = $('rep').value.trim();
-  const itens = ok.map(r=>({nome:r.nome, numero:r.numero, tamCamisa:r.cam, tamShort:r.sho, obs:r.obs}));
+  const representante = $('rep').value.trim(), contato = $('zap').value.replace(/\D/g,''), opcoes = opcoesMarcadas();
+  const itens = ok.map(r=>({nome:r.nome, numero:r.numero, tamCamisa:r.cam, tamShort:r.sho, goleiro:r.gol, obs:r.obs}));
   const btn = $('btnEnviar'), original = btn.textContent;
   btn.textContent = 'Enviando...'; btn.disabled = true;
   try{
-    const r = await fetch('/api/enviar', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({representante, itens, opcoes:[...document.querySelectorAll('#opts input:checked')].map(i=>i.value)})});
-    if(!r.ok){ const j = await r.json().catch(()=>({})); const e = new Error(j.erro || 'falha'); e.servidor = !!j.erro; throw e; }
-    reiniciar(); $('rep').value = ''; document.querySelectorAll('#opts input').forEach(i=>i.checked=false);
-    aviso({tipo:'ok', titulo:'Lista enviada!', texto:`Recebemos a lista de ${representante}: ${nc} camisa${nc===1?'':'s'} e ${ns} short${ns===1?'':'s'}.`, botao:'Fechar'});
+    const r = await fetch('/api/enviar', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({representante, contato, itens, opcoes})});
+    const j = await r.json().catch(()=>({}));
+    if(!r.ok){ const e = new Error(j.erro || 'falha'); e.servidor = !!j.erro; throw e; }
+    reiniciar(); $('rep').value = ''; $('zap').value = ''; document.querySelectorAll('#opts input').forEach(i=>i.checked=false);
+    limparRascunho(); $('rasc').hidden = true; atualizarTotal();
+    const tipos = opcoes.map(x=>NOMES_TIPO[x]).join(' + ') || 'Camisa padrão';
+    const resumo = `Protocolo: ${j.protocolo}\nRepresentante: ${representante}\nTipo de camisa: ${tipos}\n${j.orcamento.linhas.map(l=>'- '+l.d+(l.combinar?'':' = '+brl(l.v))).join('\n')}\nTotal: ${brl(j.orcamento.total)}`;
+    aviso({tipo:'ok', titulo:'Lista enviada!', texto:`Recebemos ${j.camisas} camisa${j.camisas===1?'':'s'} e ${j.shorts} short${j.shorts===1?'':'s'}. Guarde o protocolo para falar com a gente sobre este pedido.`,
+      html:`<div class="proto">PROTOCOLO<b>${esc(j.protocolo)}</b></div><div class="orc-t" style="margin-top:14px">Orçamento detalhado</div>${tabelaOrc(j.orcamento)}<button class="btn" id="btnCopiarResumo" style="margin-top:12px">Copiar resumo</button>`, botao:'Fechar'});
+    $('btnCopiarResumo').onclick = async e=>{ try{ await navigator.clipboard.writeText(resumo); e.target.textContent = 'Copiado!'; }catch(x){ e.target.textContent = 'Não foi possível copiar'; } };
   }catch(err){
     aviso({titulo:'Não foi possível enviar', texto:(err.servidor ? err.message + ' ' : 'Verifique sua conexão com a internet e tente de novo. ') + 'Sua lista continua preenchida.', botao:'Tentar de novo'});
-  }finally{
-    btn.textContent = original; btn.disabled = false;
-  }
+  }finally{ btn.textContent = original; btn.disabled = false; }
 });
-
 $('btnCopiar').addEventListener('click', async ()=>{
-  const txt = $('exportText'), hint = $('copyHint');
-  txt.select();
+  const txt = $('exportText'), hint = $('copyHint'); txt.select();
   try{ await navigator.clipboard.writeText(txt.value); hint.textContent = 'Copiado! Cole na janela do macro do CorelDRAW.'; }
-  catch(err){
-    try{ document.execCommand('copy'); hint.textContent = 'Copiado! Cole na janela do macro do CorelDRAW.'; }
-    catch(e2){ hint.textContent = 'Selecione o texto acima e copie manualmente (Ctrl+C).'; }
-  }
+  catch(err){ try{ document.execCommand('copy'); hint.textContent = 'Copiado! Cole na janela do macro do CorelDRAW.'; }catch(e2){ hint.textContent = 'Selecione o texto acima e copie manualmente (Ctrl+C).'; } }
 });
 
-reiniciar();
+if(!restaurar()) reiniciar(); else atualizarTotal();
+fetch('/api/precos').then(r=>r.json()).then(j=>{ precos = j.precos; atualizarTotal(); }).catch(()=>{});
 
 document.querySelectorAll('.nav-item[data-view]').forEach(item=>{
   item.addEventListener('click', ()=>{
