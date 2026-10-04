@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Painel de Encomendas</title>
+<style>
+*{box-sizing:border-box;}
+body{margin:0;background:#0a0a0d;color:#e9e9ec;font-family:Arial,Helvetica,sans-serif;padding:1rem;padding-bottom:3rem;}
+.wrap{max-width:980px;margin:0 auto;}
+h1{font-size:22px;margin:0;}
+.muted{color:#8a8a90;font-size:12px;}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:1rem;}
+.btn{background:#1c1c22;border:1px solid rgba(255,255,255,.12);color:#e9e9ec;padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;text-decoration:none;}
+.btn:hover{background:#26262e;}
+.btn.p{background:#e9e9ec;color:#0a0a0d;font-weight:bold;border:none;}
+.btn.r{color:#e45858;}
+select,input{background:#1a1a20;border:1px solid rgba(255,255,255,.12);color:#e9e9ec;border-radius:8px;padding:9px;font-size:14px;color-scheme:dark;}
+.card{background:#111115;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1rem;margin-bottom:.75rem;}
+.login{max-width:340px;margin:20vh auto 0;text-align:center;}
+.login input{width:100%;margin:12px 0;font-size:16px;}
+.err{color:#e45858;font-size:13px;min-height:18px;}
+.anos{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+.meses{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:1rem;}
+.mes{background:#15151a;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 4px;text-align:center;cursor:pointer;color:#8a8a90;font-size:13px;}
+.mes b{display:block;font-size:16px;color:#55555c;}
+.mes.tem{color:#e9e9ec;}.mes.tem b{color:#e9e9ec;}
+.mes.sel{background:#e9e9ec;color:#0a0a0d;}.mes.sel b{color:#0a0a0d;}
+.totais{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:1rem;}
+.tot{background:#15151a;border-radius:10px;padding:10px;font-size:12px;color:#b4b4ba;}
+.tot b{display:block;font-size:22px;color:#e9e9ec;}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;}
+.feita{border-color:#3d8b5a;}
+.invalida{border-color:#e45858;}
+.tag{display:inline-block;background:#e45858;color:#fff;font-size:11px;font-weight:bold;padding:2px 8px;border-radius:99px;margin-left:8px;letter-spacing:.5px;}
+.aviso-inv{color:#e45858;font-size:12px;margin-top:4px;}
+details{margin-top:10px;}summary{cursor:pointer;font-size:13px;color:#b4b4ba;}
+.it{overflow-x:auto;}table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;}
+td,th{padding:5px 6px;text-align:left;border-bottom:1px solid rgba(255,255,255,.05);}th{color:#8a8a90;font-weight:normal;}
+.acoes{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+@media(max-width:600px){.meses{grid-template-columns:repeat(4,1fr);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div id="login" class="card login">
+  <h1>Painel</h1>
+  <p class="muted">Digite a senha para entrar.</p>
+  <input type="password" id="senha" placeholder="Senha" autocomplete="current-password">
+  <div class="err" id="loginErr"></div>
+  <button class="btn p" id="btnEntrar" style="width:100%;padding:12px;">Entrar</button>
+</div>
+
+<div id="app" hidden>
+  <div class="top">
+    <div><h1>Painel de Encomendas</h1><div class="muted" id="st"></div></div>
+    <div style="display:flex;gap:8px;"><button class="btn" id="btnAtualizar">Atualizar</button><button class="btn" id="btnSair">Sair</button></div>
+  </div>
+
+  <div class="anos">
+    <label class="muted">Ano <select id="ano"></select></label>
+    <label class="muted">Nome repetido vale
+      <select id="modo"><option value="tudo">em todo o histórico</option><option value="mes">só dentro do mesmo mês</option></select>
+    </label>
+  </div>
+  <div class="meses" id="meses"></div>
+  <div class="totais" id="totais"></div>
+  <div id="lista"></div>
+</div>
+
+</div>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+let senha = sessionStorage.getItem('s') || '', dados = [], ano = null, mes = null;
+try { $('modo').value = localStorage.getItem('modo') || 'tudo'; } catch(e){}
+
+async function api(corpo){
+  const r = await fetch('/api/painel', {
+    method: corpo ? 'POST' : 'GET',
+    headers: {'x-senha': senha, 'Content-Type': 'application/json'},
+    body: corpo ? JSON.stringify(corpo) : undefined
+  });
+  if(r.status === 401) throw {codigo:'senha'};
+  if(!r.ok) throw {codigo:'erro', status:r.status};
+  return r.json();
+}
+async function carregar(primeira){
+  $('st').textContent = 'Carregando...';
+  try{
+    dados = (await api()).encomendas;
+    sessionStorage.setItem('s', senha);
+    $('login').hidden = true; $('app').hidden = false; $('st').textContent = '';
+    if(primeira){
+      const hoje = new Date();
+      ano = hoje.getFullYear(); mes = hoje.getMonth() + 1;
+      const ult = dados.slice().sort((a,b)=>b.criadoEm.localeCompare(a.criadoEm))[0];
+      if(ult && !dados.some(e=>e.ano===ano && e.mes===mes)){ ano = ult.ano; mes = ult.mes; }
+    }
+    render();
+  }catch(e){
+    $('app').hidden = true; $('login').hidden = false;
+    sessionStorage.removeItem('s');
+    $('loginErr').textContent = e.codigo === 'senha' ? (senha ? 'Senha incorreta.' : '')
+      : 'Não foi possível carregar. Se acabou de publicar o site, confira se a senha foi cadastrada no Netlify.';
+  }
+}
+$('btnEntrar').onclick = () => { senha = $('senha').value; $('loginErr').textContent=''; carregar(true); };
+$('senha').addEventListener('keydown', e => { if(e.key === 'Enter') $('btnEntrar').click(); });
+$('btnSair').onclick = () => { sessionStorage.removeItem('s'); senha=''; location.reload(); };
+$('btnAtualizar').onclick = () => carregar(false);
+$('ano').onchange = () => { ano = Number($('ano').value); render(); };
+$('modo').onchange = () => { try{ localStorage.setItem('modo', $('modo').value); }catch(e){} render(); };
+$('meses').onclick = e => { const m = e.target.closest('.mes'); if(m){ mes = Number(m.dataset.m); render(); } };
+
+const norm = s => String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
+const ym = e => e.ano + '-' + String(e.mes).padStart(2,'0');
+const qCam = e => e.itens.filter(i=>i.tamCamisa).length;
+const qSho = e => e.itens.filter(i=>i.tamShort).length;
+
+function marcarRepetidas(){
+  const modo = $('modo').value, vistos = {};
+  dados.slice().sort((a,b)=>a.criadoEm.localeCompare(b.criadoEm)).forEach(e=>{
+    const k = norm(e.representante) + (modo === 'mes' ? '|' + ym(e) : '');
+    if(vistos[k]){ e._inv = true; e._orig = vistos[k]; } else { e._inv = false; e._orig = null; vistos[k] = e; }
+  });
+}
+const fmtData = iso => new Date(iso).toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo', dateStyle:'short', timeStyle:'short'});
+function soma(ls){
+  const r = {n:0, inv:0, cp:0, sp:0, cf:0, sf:0};
+  ls.forEach(e=>{
+    if(e._inv){ r.inv++; return; }
+    r.n++; const c = qCam(e), s = qSho(e); r.cp += c; r.sp += s;
+    if(e.status === 'Feita'){ r.cf += c; r.sf += s; }
+  });
+  return r;
+}
+function render(){
+  marcarRepetidas();
+  const anoAtual = new Date().getFullYear();
+  const anos = [...new Set([anoAtual, ...dados.map(e=>e.ano)])].sort((a,b)=>b-a);
+  if(!anos.includes(ano)) ano = anos[0];
+  $('ano').innerHTML = anos.map(a=>`<option ${a===ano?'selected':''}>${a}</option>`).join('');
+
+  $('meses').innerHTML = MESES.map((n,i)=>{
+    const c = dados.filter(e=>e.ano===ano && e.mes===i+1).length;
+    return `<div class="mes ${c?'tem':''} ${mes===i+1?'sel':''}" data-m="${i+1}">${n.slice(0,3)}<b>${c}</b></div>`;
+  }).join('');
+
+  const doMes = dados.filter(e=>e.ano===ano && e.mes===mes).sort((a,b)=>b.criadoEm.localeCompare(a.criadoEm));
+  const t = soma(doMes), a = soma(dados.filter(e=>e.ano===ano));
+  $('totais').innerHTML =
+    `<div class="tot"><b>${t.n}</b>encomendas válidas${t.inv?` · ${t.inv} não válida(s)`:''}</div>
+     <div class="tot"><b>${t.cp}</b>camisas pedidas</div><div class="tot"><b>${t.sp}</b>shorts pedidos</div>
+     <div class="tot"><b>${t.cf}</b>camisas produzidas</div><div class="tot"><b>${t.sf}</b>shorts produzidos</div>
+     <div class="tot"><b>${a.cf} / ${a.sf}</b>camisas / shorts produzidos em ${ano}</div>`;
+
+  $('lista').innerHTML = doMes.map(e=>{
+    const ent = e.entrega || '';
+    return `<div class="card ${e._inv?'invalida':(e.status==='Feita'?'feita':'')}" data-key="${esc(e.key)}">
+      <div class="row">
+        <div><b>${esc(e.representante)}</b>${e._inv?'<span class="tag">NÃO VÁLIDA</span>':''}
+          <div class="muted">Enviada em ${fmtData(e.criadoEm)} · ${qCam(e)} camisas · ${qSho(e)} shorts</div>
+          ${e._inv?`<div class="aviso-inv">Já existe uma encomenda anterior com este nome (${fmtData(e._orig.criadoEm)}). Ela não entra nas contas, mas você pode abrir e usar normalmente.</div>`:''}
+        </div>
+        <div class="row">
+          <select class="st"><option ${e.status!=='Feita'?'selected':''}>Pendente</option><option ${e.status==='Feita'?'selected':''}>Feita</option></select>
+          <label class="muted">Entrega <input type="date" class="en" value="${esc(ent)}"></label>
+        </div>
+      </div>
+      <details><summary>Abrir pasta da encomenda</summary>
+        <div class="it"><table><tr><th>Nome</th><th>Nº</th><th>Camisa</th><th>Short</th><th>Obs.</th></tr>
+        ${e.itens.map(i=>`<tr><td>${esc(i.nome)}</td><td>${esc(i.numero)}</td><td>${esc(i.tamCamisa||'—')}</td><td>${esc(i.tamShort||'—')}</td><td>${esc(i.obs)}</td></tr>`).join('')}</table></div>
+        <div class="acoes"><button class="btn csv">Baixar planilha (CSV)</button><button class="btn r exc">Excluir encomenda</button></div>
+      </details></div>`;
+  }).join('') || `<p class="muted">Nenhuma encomenda em ${MESES[mes-1]} de ${ano}.</p>`;
+}
+
+$('lista').addEventListener('change', async ev => {
+  const card = ev.target.closest('.card'); if(!card) return;
+  const e = dados.find(x=>x.key === card.dataset.key);
+  e.status = card.querySelector('.st').value; e.entrega = card.querySelector('.en').value;
+  render();
+  try{ await api({acao:'atualizar', key:e.key, status:e.status, entrega:e.entrega}); }
+  catch(err){ $('st').textContent = 'Não foi possível salvar. Clique em Atualizar e tente de novo.'; }
+});
+$('lista').addEventListener('click', async ev => {
+  const card = ev.target.closest('.card'); if(!card) return;
+  const e = dados.find(x=>x.key === card.dataset.key);
+  if(ev.target.closest('.csv')){
+    const linhas = [['Nome','Numero','TamanhoCamisa','TamanhoShort','Observacoes'], ...e.itens.map(i=>[i.nome,i.numero,i.tamCamisa,i.tamShort,i.obs])];
+    const csv = '\ufeff' + linhas.map(l=>l.map(c=>'"'+String(c||'').replace(/"/g,'""')+'"').join(';')).join('\r\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));
+    a.download = 'encomenda-' + norm(e.representante).replace(/\s+/g,'-') + '-' + ym(e) + '.csv';
+    a.click(); URL.revokeObjectURL(a.href);
+  }
+  if(ev.target.closest('.exc')){
+    if(!confirm('Excluir esta encomenda para sempre?')) return;
+    try{ await api({acao:'excluir', key:e.key}); dados = dados.filter(x=>x!==e); render(); }
+    catch(err){ $('st').textContent = 'Não foi possível excluir. Tente de novo.'; }
+  }
+});
+
+if(senha) carregar(true);
+</script>
+</body>
+</html>

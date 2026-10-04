@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lista de Camisas</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+*{box-sizing:border-box;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body{margin:0;background:#0a0a0d;color:#e9e9ec;font-family:Arial,Helvetica,sans-serif;min-height:100%;}
+.app{display:flex;min-height:100vh;min-height:100dvh;}
+.sidebar{width:220px;flex-shrink:0;background:#111115;border-right:1px solid rgba(255,255,255,.08);padding:1.25rem 1rem;display:flex;flex-direction:column;}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:2rem;}
+.logo-text{font-weight:bold;letter-spacing:3px;font-size:15px;}
+.logo-sub{font-size:11px;color:#8a8a90;letter-spacing:1px;margin-top:2px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;color:#b4b4ba;font-size:14px;cursor:pointer;margin-bottom:4px;}
+.nav-item.active{background:#1c1c22;color:#fff;}
+.main{flex:1;display:flex;flex-direction:column;min-width:0;}
+header{padding:1rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:flex-end;font-size:12px;letter-spacing:1px;color:#8a8a90;}
+.content{flex:1;display:flex;gap:1rem;padding:1.5rem;min-width:0;}
+.panel-table{flex:1;min-width:0;background:#111115;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1.25rem;display:flex;flex-direction:column;}
+.rep{margin-bottom:1.25rem;}
+.rep label{display:block;font-size:12px;letter-spacing:1px;color:#8a8a90;margin-bottom:6px;}
+.table-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:10px;}
+.table-title{font-size:17px;font-weight:bold;margin:0;}
+.table-sub{font-size:12px;color:#8a8a90;margin:4px 0 0;}
+.btn{background:#1c1c22;border:1px solid rgba(255,255,255,.12);color:#e9e9ec;padding:7px 14px;border-radius:8px;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;text-decoration:none;}
+.btn:hover{background:#26262e;}
+.btn-primary{background:#e9e9ec;color:#0a0a0d;font-weight:bold;border:none;}
+.btn-primary:hover{background:#fff;}
+.btn:disabled{opacity:.6;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{text-align:left;color:#8a8a90;font-weight:normal;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.08);font-size:11px;letter-spacing:1px;}
+tbody td{padding:5px 8px;}
+tbody tr{border-bottom:1px solid rgba(255,255,255,.04);}
+.idx{color:#8a8a90;width:28px;}
+input[type=text],select{width:100%;background:#1a1a20;border:1px solid rgba(255,255,255,.1);color:#e9e9ec;padding:8px 10px;border-radius:7px;font-size:13px;min-height:40px;}
+input[type=text]::placeholder{color:#55555c;}
+select{appearance:none;}
+.del{background:transparent;border:none;color:#8a8a90;cursor:pointer;padding:6px;}
+.del:hover{color:#e45858;}
+.table-foot{display:flex;align-items:center;justify-content:space-between;margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,.08);font-size:13px;color:#8a8a90;flex-wrap:wrap;gap:10px;}
+.export{margin-top:1rem;}
+.export textarea{width:100%;min-height:120px;background:#1a1a20;border:1px solid rgba(255,255,255,.1);color:#e9e9ec;border-radius:8px;padding:10px;font-family:Consolas,monospace;font-size:12px;resize:vertical;}
+.export-row{display:flex;gap:8px;margin-top:8px;align-items:center;}
+.hint{font-size:11px;color:#55555c;}
+.ajuda-wrap{flex:1;min-width:0;}
+.ajuda-title{font-size:28px;margin:0 0 4px;}
+.card{background:#111115;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1.1rem;}
+.suporte-card{display:flex;gap:14px;align-items:flex-start;margin:1.25rem 0;}
+.card-title{font-weight:bold;font-size:14px;margin:0;}
+.ajuda-bottom{display:grid;grid-template-columns:1fr 280px;gap:1rem;}
+.faq-item{border-top:1px solid rgba(255,255,255,.08);}
+.faq-q{width:100%;background:none;border:none;color:#e9e9ec;padding:12px 0;text-align:left;font-size:13px;cursor:pointer;display:flex;justify-content:space-between;}
+.faq-a{display:none;color:#8a8a90;font-size:12px;line-height:1.6;margin:-4px 0 12px;}
+.faq-item.open .faq-a{display:block;}
+.cta-card{text-align:center;}
+.ajuda-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:1.25rem;align-items:start;}
+.guia summary{cursor:pointer;list-style:none;font-weight:bold;font-size:14px;display:flex;justify-content:space-between;gap:8px;}
+.guia summary::-webkit-details-marker{display:none;}
+.guia summary::after{content:"⌄";color:#8a8a90;}
+.guia[open] summary::after{content:"⌃";}
+.guia:hover{background:#1a1a20;}
+.guia p,.guia li{font-size:13px;color:#b4b4ba;line-height:1.6;}
+.guia p{margin:.6rem 0 0;}
+.guia ol,.guia ul{margin:.6rem 0 0;padding-left:1.2rem;}
+.guia a{color:#e9e9ec;}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50;}
+.ov[hidden]{display:none;}
+.modal{background:#111115;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:1.5rem;width:100%;max-width:480px;max-height:85vh;overflow:auto;text-align:center;}
+.m-ico{width:48px;height:48px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:bold;}
+.m-ico.erro{background:rgba(228,88,88,.15);color:#e45858;}
+.m-ico.ok{background:rgba(61,139,90,.18);color:#4fc27f;}
+.modal h3{margin:0 0 6px;font-size:18px;}
+.modal p{margin:0;color:#b4b4ba;font-size:14px;line-height:1.5;}
+#mLista{list-style:none;padding:0;margin:1rem 0 0;text-align:left;display:flex;flex-direction:column;gap:8px;}
+#mLista li{background:#1a1a20;border-left:3px solid #e45858;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:4px;align-items:flex-start;}
+#mLista li b{font-size:14px;}
+#mLista li span{font-size:12px;color:#b4b4ba;line-height:1.5;}
+#mLista .btn{margin-top:4px;padding:5px 10px;font-size:12px;}
+.m-acts{margin-top:1.25rem;}
+.invalid{border-color:#e45858 !important;box-shadow:0 0 0 2px rgba(228,88,88,.25);}
+tr.err{background:rgba(228,88,88,.06);}
+.prog{flex:1;min-width:220px;}
+.prog-top{display:flex;justify-content:space-between;gap:10px;margin-bottom:6px;color:#b4b4ba;}
+.bar{height:6px;background:#1a1a20;border-radius:99px;overflow:hidden;}
+.bar i{display:block;height:100%;width:0;background:#e0a23a;transition:width .2s;}
+.prog.ok .bar i{background:#4fc27f;}
+.prog-hint{font-size:11px;color:#8a8a90;margin-top:4px;}
+.bottom-nav{display:none;}
+@media(max-width:900px){.ajuda-bottom{grid-template-columns:1fr;}}
+@media(max-width:760px){
+  .sidebar{display:none;}
+  .content{flex-direction:column;padding:.75rem;}
+  .main{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px));}
+  header{justify-content:center;padding:.75rem;font-size:10px;letter-spacing:.5px;text-align:center;}
+  .bottom-nav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:10;background:#111115;border-top:1px solid rgba(255,255,255,.1);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));}
+  .bottom-nav .nav-item{flex:1;justify-content:center;margin:0;font-size:13px;padding:12px 6px;}
+  input[type=text],select{font-size:16px;min-height:44px;}
+  .panel-table{padding:1rem;}
+  table,tbody{display:block;}
+  thead{display:none;}
+  tbody tr{display:grid;grid-template-columns:1fr 1fr;grid-template-areas:"idx del" "nome nome" "num obs" "cam sho";gap:8px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08);}
+  tbody td{padding:0;display:block;}
+  td:nth-child(1){grid-area:idx;align-self:center;width:auto;}
+  td:nth-child(2){grid-area:nome;}
+  td:nth-child(3){grid-area:num;}
+  td:nth-child(4){grid-area:cam;}
+  td:nth-child(5){grid-area:sho;}
+  td:nth-child(6){grid-area:obs;}
+  td:nth-child(7){grid-area:del;text-align:right;}
+  .del{min-width:44px;min-height:44px;}
+  .table-head .btn{flex:1;justify-content:center;}
+  .table-foot{flex-direction:column;align-items:stretch;}
+  .table-foot > div{flex-direction:column;}
+  .table-foot .btn{justify-content:center;min-height:44px;}
+  .ajuda-grid{grid-template-columns:1fr;}
+  .ajuda-title{font-size:22px;}
+  .faq-q{padding:14px 0;font-size:14px;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">
+      <!-- LOGO: coloque o arquivo logo.png ao lado deste HTML, ou cole aqui o seu base64 original no src -->
+      <img src="logo.png" alt="HEELCLTH" style="height:30px;width:auto;">
+      <div><div class="logo-text">HEELCLTH.</div><div class="logo-sub">sublimação</div></div>
+    </div>
+    <div class="nav-item active" data-view="lista">Lista de Camisas</div>
+    <div class="nav-item" data-view="modelos">Modelos</div>
+    <div class="nav-item" data-view="ajuda">Ajuda</div>
+  </aside>
+  <div class="main">
+    <header>SUA IDEIA &nbsp;·&nbsp; NOSSA IMPRESSÃO &nbsp;·&nbsp; RESULTADO EM CAMISAS</header>
+    <div class="content" id="view-lista">
+      <section class="panel-table">
+        <div class="rep">
+          <label for="rep">NOME DO REPRESENTANTE</label>
+          <input type="text" id="rep" placeholder="Nome do representante">
+        </div>
+        <div class="table-head">
+          <div>
+            <p class="table-title">Lista de Nomes, Números e Tamanhos</p>
+            <p class="table-sub">Escolha o tamanho da camisa e/ou do short de cada pessoa. Se ela não terá uma das peças, deixe "Sem camisa" ou "Sem short".</p>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <input type="file" id="csvInput" accept=".csv" style="display:none">
+            <button class="btn" id="btnImport">Importar (.csv)</button>
+            <button class="btn" id="btnClear">Limpar</button>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>Nº</th><th>NOME</th><th>NÚMERO</th><th>TAM. CAMISA</th><th>TAM. SHORT</th><th>OBSERVAÇÕES</th><th></th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <div class="table-foot">
+          <div class="prog" id="prog">
+            <div class="prog-top"><span>Camisas: <strong id="nCam">0</strong> de <span id="minTxt">10</span> (mínimo)</span><span>Shorts: <strong id="nSho">0</strong></span></div>
+            <div class="bar"><i id="barra"></i></div>
+            <div class="prog-hint">Os shorts não contam para o mínimo de camisas.</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn" id="btnGerar">Gerar lista para colar</button>
+            <button class="btn btn-primary" id="btnEnviar">Enviar lista preenchida</button>
+          </div>
+        </div>
+        <div class="export" id="exportBox" style="display:none">
+          <textarea id="exportText" readonly></textarea>
+          <div class="export-row">
+            <button class="btn" id="btnCopiar">Copiar</button>
+            <span class="hint" id="copyHint">Cole esse texto direto na janela do macro do CorelDRAW.</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="content" id="view-modelos" style="display:none">
+      <section class="panel-table" style="align-items:center;justify-content:center;min-height:300px;">
+        <p class="table-title" style="font-size:20px;margin-bottom:6px;">Modelos</p>
+        <p class="table-sub" style="font-size:18px;">Em breve</p>
+      </section>
+    </div>
+
+    <div class="content" id="view-ajuda" style="display:none">
+      <section class="ajuda-wrap">
+        <h1 class="ajuda-title">Ajuda</h1>
+        <p class="table-sub">Encontre informações e suporte para utilizar a plataforma.</p>
+        <div class="card suporte-card">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e9e9ec" stroke-width="1.5"><path d="M3 6h18v12H3z"/><path d="M3 6l9 7 9-7"/></svg>
+          <div>
+            <p class="card-title">Suporte ao cliente</p>
+            <p class="table-sub" style="margin:2px 0 6px;">Em caso de dúvidas, entre em contato pelo e-mail ou telefone:</p>
+            <p style="margin:0;font-weight:bold;">heel.clths.sublimacao@gmail.com</p>
+            <p style="margin:2px 0 0;font-weight:bold;">+55 (37) 9801-6356</p>
+          </div>
+        </div>
+        <div class="ajuda-grid">
+          <details class="card guia"><summary>Guia Rápido</summary>
+            <ol>
+              <li>Digite o <strong>nome do representante</strong> no campo do topo da página.</li>
+              <li>Preencha o <strong>nome</strong>, o <strong>número</strong> e o tamanho da <strong>camisa</strong> e/ou do <strong>short</strong> de cada pessoa. Se ela não terá uma das peças, deixe "Sem camisa" ou "Sem short".</li>
+              <li>Confira o contador no rodapé: o pedido precisa ter no <strong>mínimo 10 camisas</strong> (os shorts não entram nessa conta).</li>
+              <li>Clique em <strong>Enviar lista preenchida</strong>. Pronto: a lista chega direto para nós, sem precisar abrir o seu e-mail.</li>
+            </ol>
+            <p>Se algo estiver faltando, o site abre um aviso explicando o que corrigir e marca a linha em vermelho.</p>
+          </details>
+          <details class="card guia"><summary>Como Cadastrar Camisas</summary>
+            <p>Na aba <strong>Lista de Camisas</strong>, preencha uma linha para cada peça:</p>
+            <ul>
+              <li><strong>Nome:</strong> o nome que será impresso.</li>
+              <li><strong>Número:</strong> o número da camisa.</li>
+              <li><strong>Tam. Camisa:</strong> escolha na lista (PP ao GG, G1, G2, infantis de 2 a 14 e Babylook). Se a pessoa não terá camisa, deixe "Sem camisa".</li>
+              <li><strong>Tam. Short:</strong> mesma lista. Se a pessoa não terá short, deixe "Sem short". Cada pessoa precisa de pelo menos uma das duas peças.</li>
+              <li><strong>Observações:</strong> campo livre, opcional, para qualquer detalhe.</li>
+            </ul>
+            <p>Quando você começa a digitar na última linha, uma nova linha em branco aparece sozinha. Para apagar uma linha, use o ícone da lixeira. O botão <strong>Limpar</strong> apaga a tabela inteira. O pedido precisa ter no mínimo 10 camisas; os shorts não contam para esse mínimo.</p>
+          </details>
+          <details class="card guia"><summary>Como Importar CSV</summary>
+            <p>Se você já tem a lista pronta no Excel ou Google Planilhas, não precisa digitar de novo.</p>
+            <ol>
+              <li>Monte a planilha com as colunas nesta ordem: <strong>Nome, Numero, TamanhoCamisa, TamanhoShort, Observações</strong>. Deixe vazio o tamanho da peça que a pessoa não vai ter.</li>
+              <li>Salve como <strong>CSV</strong> (Arquivo → Salvar como ou Fazer download → CSV).</li>
+              <li>No site, clique em <strong>Importar (.csv)</strong> e escolha o arquivo.</li>
+            </ol>
+            <p>Use os tamanhos como aparecem na lista (por exemplo M, GG, 10 ou PBABYLOOK). A primeira linha pode ser o cabeçalho, desde que comece com "Nome". Atenção: a importação substitui as linhas que já estavam na tabela. Confira os dados antes de enviar.</p>
+          </details>
+          <details class="card guia"><summary>Como Usar Modelos</summary>
+            <p>A aba <strong>Modelos</strong> ainda está em desenvolvimento e aparece como "Em breve". Quando estiver disponível, você poderá escolher o modelo da camisa ou do short direto por ali.</p>
+            <p>Enquanto isso, se você já sabe qual modelo quer, é só combinar com a nossa equipe pelo WhatsApp ou e-mail, e enviar a lista normalmente.</p>
+          </details>
+          <details class="card guia"><summary>Dúvidas Frequentes</summary>
+            <p>As respostas para as perguntas mais comuns estão logo abaixo, na seção <strong>Perguntas Frequentes</strong>. Basta clicar na pergunta para ver a resposta.</p>
+            <p>Não encontrou o que procurava? Fale com a gente pelos canais da aba Contato.</p>
+          </details>
+          <details class="card guia"><summary>Suporte</summary>
+            <p>Teve algum problema ao preencher ou enviar a lista? Nossa equipe te ajuda.</p>
+            <ul>
+              <li>E-mail: heel.clths.sublimacao@gmail.com</li>
+              <li>Telefone e WhatsApp: +55 (37) 9801-6356</li>
+            </ul>
+            <p>Para agilizar o atendimento, informe o nome do representante e descreva o que aconteceu. Se possível, mande uma foto da tela.</p>
+          </details>
+          <details class="card guia"><summary>Contato</summary>
+            <p><strong>Horário de atendimento</strong></p>
+            <ul>
+              <li>Segunda a sexta: 09:00 às 18:00</li>
+              <li>Sábado: 09:00 às 13:00</li>
+            </ul>
+            <p>Mensagens enviadas fora do horário são respondidas no próximo dia de atendimento.</p>
+            <p><a href="https://wa.me/553798016356" target="_blank" rel="noopener">Chamar no WhatsApp</a> · heel.clths.sublimacao@gmail.com</p>
+          </details>
+        </div>
+        <div class="ajuda-bottom">
+          <div class="card faq-card">
+            <p class="card-title" style="font-size:16px;">Perguntas Frequentes</p>
+            <p class="table-sub" style="margin:2px 0 1rem;">Tire suas dúvidas com as respostas mais comuns.</p>
+            <div class="faq-item"><button class="faq-q">Como adicionar uma peça? <span>⌄</span></button>
+              <p class="faq-a">Preencha Nome, Número e o tamanho da camisa e/ou do short em qualquer linha da tabela. Uma nova linha em branco aparece automaticamente assim que você começa a digitar na última.</p></div>
+            <div class="faq-item"><button class="faq-q">Como importar uma lista CSV? <span>⌄</span></button>
+              <p class="faq-a">Clique em "Importar (.csv)" e selecione um arquivo com as colunas Nome, Numero, TamanhoCamisa, TamanhoShort e Observações. As linhas existentes são substituídas pelas do arquivo.</p></div>
+            <div class="faq-item"><button class="faq-q">Como enviar a lista? <span>⌄</span></button>
+              <p class="faq-a">Informe o nome do representante, preencha a tabela e clique em "Enviar lista preenchida". O pedido precisa ter pelo menos 10 camisas (shorts não contam). A lista chega direto para nós, sem abrir seu e-mail.</p></div>
+            <div class="faq-item"><button class="faq-q">Como gerar a lista para colar? <span>⌄</span></button>
+              <p class="faq-a">Depois de preencher a tabela, clique em "Gerar lista para colar" e depois em "Copiar". Cole o texto direto na janela do macro do CorelDRAW.</p></div>
+          </div>
+          <div class="card cta-card">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#e9e9ec" stroke-width="1.3"><path d="M3 6h18v12H3z"/><path d="M3 6l9 7 9-7"/></svg>
+            <p class="card-title" style="margin-top:8px;">Ainda precisa de ajuda?</p>
+            <p class="table-sub">Nossa equipe está pronta para te atender.</p>
+            <a class="btn btn-primary" style="width:100%;justify-content:center;margin:10px 0;" href="https://wa.me/553798016356" target="_blank" rel="noopener">Entrar em contato</a>
+            <p class="table-sub" style="margin:0;">Seg a sex: 09:00 às 18:00</p>
+            <p class="table-sub" style="margin:2px 0 0;">Sábado: 09:00 às 13:00</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+<div class="ov" id="ov" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTit">
+    <div class="m-ico" id="mIco"></div>
+    <h3 id="mTit"></h3>
+    <p id="mTxt"></p>
+    <ul id="mLista"></ul>
+    <div class="m-acts"><button class="btn btn-primary" id="mOk">Entendi</button></div>
+  </div>
+</div>
+<nav class="bottom-nav">
+  <div class="nav-item active" data-view="lista">Lista</div>
+  <div class="nav-item" data-view="modelos">Modelos</div>
+  <div class="nav-item" data-view="ajuda">Ajuda</div>
+</nav>
+<script>
+const MIN_CAMISAS = 10;
+
+const $ = id => document.getElementById(id);
+const TAMANHOS = [["PP","PP"],["P","P"],["M","M"],["G","G"],["GG","GG"],["G1","G1"],["G2","G2"],["2","2"],["4","4"],["6","6"],["8","8"],["10","10"],["12","12"],["14","14"],["PBABYLOOK","P Babylook"],["MBABYLOOK","M Babylook"],["GBABYLOOK","G Babylook"],["GGBABYLOOK","GG Babylook"]];
+const tbody = $('rows');
+let rowCount = 0;
+$('minTxt').textContent = MIN_CAMISAS;
+
+const opts = vazio => `<option value="">${vazio}</option>` + TAMANHOS.map(([v,l])=>`<option value="${v}">${l}</option>`).join('');
+
+/* ---------- Aviso (modal) ---------- */
+function aviso({tipo='erro', titulo, texto='', itens=[], botao='Entendi'}){
+  $('mIco').className = 'm-ico ' + tipo;
+  $('mIco').textContent = tipo === 'ok' ? '✓' : '!';
+  $('mTit').textContent = titulo;
+  $('mTxt').textContent = texto;
+  const ul = $('mLista'); ul.innerHTML = '';
+  itens.forEach(it=>{
+    const li = document.createElement('li');
+    const b = document.createElement('b'); b.textContent = it.msg;
+    const sp = document.createElement('span'); sp.textContent = it.dica || '';
+    li.append(b, sp);
+    if(it.el){
+      const bt = document.createElement('button');
+      bt.className = 'btn'; bt.textContent = 'Ir para o campo';
+      bt.onclick = ()=>{ fechar(); it.el.scrollIntoView({block:'center',behavior:'smooth'}); setTimeout(()=>it.el.focus({preventScroll:true}),350); };
+      li.append(bt);
+    }
+    ul.append(li);
+  });
+  $('mOk').textContent = botao;
+  $('ov').hidden = false;
+  $('mOk').focus();
+}
+function fechar(){ $('ov').hidden = true; }
+$('mOk').addEventListener('click', fechar);
+$('ov').addEventListener('click', e=>{ if(e.target === $('ov')) fechar(); });
+document.addEventListener('keydown', e=>{ if(e.key === 'Escape') fechar(); });
+
+/* ---------- Tabela ---------- */
+function addRow(nome='', numero='', cam='', sho='', obs=''){
+  rowCount++;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="idx">${rowCount}.</td>
+    <td><input type="text" class="f-nome" placeholder="Nome"></td>
+    <td><input type="text" class="f-num" placeholder="Número"></td>
+    <td><select class="f-cam" aria-label="Tamanho da camisa">${opts('Sem camisa')}</select></td>
+    <td><select class="f-sho" aria-label="Tamanho do short">${opts('Sem short')}</select></td>
+    <td><input type="text" class="f-obs" placeholder="Observações"></td>
+    <td><button class="del" title="Remover" aria-label="Remover linha"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button></td>`;
+  tr.querySelector('.f-nome').value = nome;
+  tr.querySelector('.f-num').value = numero;
+  tr.querySelector('.f-cam').value = cam;
+  tr.querySelector('.f-sho').value = sho;
+  tr.querySelector('.f-obs').value = obs;
+  tbody.appendChild(tr);
+  return tr;
+}
+function ler(tr){
+  const v = c => tr.querySelector(c).value.trim();
+  return {tr, nome:v('.f-nome'), numero:v('.f-num'), cam:v('.f-cam'), sho:v('.f-sho'), obs:v('.f-obs')};
+}
+const iniciada = r => r.nome || r.numero || r.cam || r.sho || r.obs;
+const completa = r => r.nome && r.numero && (r.cam || r.sho);
+const todas = () => [...tbody.querySelectorAll('tr')].map(ler);
+const validas = () => todas().filter(completa);
+
+function renumerar(){ tbody.querySelectorAll('tr').forEach((tr,i)=>{ tr.querySelector('.idx').textContent = (i+1)+'.'; }); }
+function garantirLinhaVazia(){
+  const t = todas();
+  if(t.length === 0 || iniciada(t[t.length-1])) addRow();
+  renumerar();
+}
+function atualizarTotal(){
+  const v = validas();
+  const nc = v.filter(r=>r.cam).length, ns = v.filter(r=>r.sho).length;
+  $('nCam').textContent = nc; $('nSho').textContent = ns;
+  $('barra').style.width = Math.min(100, nc / MIN_CAMISAS * 100) + '%';
+  $('prog').classList.toggle('ok', nc >= MIN_CAMISAS);
+}
+function onEdit(e){
+  e.target.classList.remove('invalid');
+  const tr = e.target.closest('tr'); if(tr) tr.classList.remove('err');
+  garantirLinhaVazia(); atualizarTotal();
+}
+tbody.addEventListener('input', onEdit);
+tbody.addEventListener('change', onEdit);
+tbody.addEventListener('click', e=>{
+  const b = e.target.closest('.del'); if(!b) return;
+  b.closest('tr').remove(); garantirLinhaVazia(); atualizarTotal();
+});
+function reiniciar(){
+  tbody.innerHTML = ''; rowCount = 0;
+  for(let i=0;i<5;i++) addRow();
+  atualizarTotal(); $('exportBox').style.display = 'none';
+}
+
+/* ---------- Validação ---------- */
+const juntar = a => a.length < 2 ? a.join('') : a.slice(0,-1).join(', ') + ' e ' + a[a.length-1];
+function validar(){
+  document.querySelectorAll('.invalid').forEach(x=>x.classList.remove('invalid'));
+  document.querySelectorAll('tr.err').forEach(x=>x.classList.remove('err'));
+  const probs = [], ok = [];
+  const marcar = (el, tr) => { el.classList.add('invalid'); tr.classList.add('err'); };
+
+  if(!$('rep').value.trim()){
+    $('rep').classList.add('invalid');
+    probs.push({msg:'Falta o nome do representante', dica:'Digite, no campo do topo da página, o nome de quem está enviando esta lista.', el:$('rep')});
+  }
+  todas().forEach((r,i)=>{
+    if(!iniciada(r)) return;
+    const falta = []; let primeiro = null; const dicas = [];
+    if(!r.nome){ falta.push('o nome'); marcar(r.tr.querySelector('.f-nome'), r.tr); primeiro = primeiro || r.tr.querySelector('.f-nome'); }
+    if(!r.numero){ falta.push('o número'); marcar(r.tr.querySelector('.f-num'), r.tr); primeiro = primeiro || r.tr.querySelector('.f-num'); }
+    if(!r.cam && !r.sho){
+      falta.push('o tamanho da camisa ou do short');
+      marcar(r.tr.querySelector('.f-cam'), r.tr); marcar(r.tr.querySelector('.f-sho'), r.tr);
+      primeiro = primeiro || r.tr.querySelector('.f-cam');
+      dicas.push('Escolha o tamanho de pelo menos uma peça. "Sem camisa" ou "Sem short" só deve ficar na peça que a pessoa não terá.');
+    }
+    if(falta.length){
+      probs.push({msg:`Linha ${i+1}: falta ${juntar(falta)}`, dica: dicas.join(' ') || 'Preencha o campo marcado em vermelho nessa linha.', el:primeiro});
+    } else ok.push(r);
+  });
+  const nc = ok.filter(r=>r.cam).length, ns = ok.filter(r=>r.sho).length;
+  if(nc < MIN_CAMISAS){
+    const alvo = ok.find(r=>!r.cam);
+    const ultima = tbody.querySelector('tr:last-child .f-nome');
+    probs.push({
+      msg:`Mínimo de ${MIN_CAMISAS} camisas: você tem ${nc}`,
+      dica:`Faltam ${MIN_CAMISAS-nc}. Cada pessoa com tamanho em "Camisa" conta como uma. Os shorts não entram nessa conta.`,
+      el: alvo ? alvo.tr.querySelector('.f-cam') : ultima
+    });
+  }
+  return {probs, ok, nc, ns};
+}
+
+/* ---------- Ações ---------- */
+$('btnImport').addEventListener('click', ()=>$('csvInput').click());
+$('csvInput').addEventListener('change', e=>{
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    tbody.innerHTML = ''; rowCount = 0;
+    ev.target.result.split(/\r?\n/).filter(l=>l.trim()!=='').forEach(l=>{
+      const c = l.split(/[,;]/).map(x=>x.trim().replace(/^"|"$/g,''));
+      if(/^nome$/i.test(c[0])) return;
+      const tam = x => (x||'').toUpperCase().replace(/\s+/g,'');
+      addRow(c[0]||'', c[1]||'', tam(c[2]), tam(c[3]), c[4]||'');
+    });
+    garantirLinhaVazia(); atualizarTotal();
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+$('btnClear').addEventListener('click', ()=>{ reiniciar(); });
+
+$('btnGerar').addEventListener('click', ()=>{
+  const v = validas();
+  if(v.length === 0){
+    aviso({titulo:'Nada para gerar ainda', texto:'Preencha pelo menos uma pessoa com nome, número e o tamanho da camisa ou do short.'});
+    return;
+  }
+  $('exportText').value = v.map(r=>[r.nome, r.numero, r.cam, r.obs, r.sho].join('\t')).join('\n');
+  $('exportBox').style.display = 'block';
+});
+
+$('btnEnviar').addEventListener('click', async ()=>{
+  const {probs, ok, nc, ns} = validar();
+  if(probs.length){
+    aviso({
+      titulo: probs.length === 1 ? 'Falta um ajuste antes de enviar' : `Faltam ${probs.length} ajustes antes de enviar`,
+      texto: 'Veja abaixo o que precisa ser corrigido. Os campos também ficaram marcados em vermelho na tabela.',
+      itens: probs, botao: 'Vou corrigir'
+    });
+    return;
+  }
+  const representante = $('rep').value.trim();
+  const itens = ok.map(r=>({nome:r.nome, numero:r.numero, tamCamisa:r.cam, tamShort:r.sho, obs:r.obs}));
+  const btn = $('btnEnviar'), original = btn.textContent;
+  btn.textContent = 'Enviando...'; btn.disabled = true;
+  try{
+    const r = await fetch('/api/enviar', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({representante, itens})});
+    if(!r.ok){ const j = await r.json().catch(()=>({})); const e = new Error(j.erro || 'falha'); e.servidor = !!j.erro; throw e; }
+    reiniciar(); $('rep').value = '';
+    aviso({tipo:'ok', titulo:'Lista enviada!', texto:`Recebemos a lista de ${representante}: ${nc} camisa${nc===1?'':'s'} e ${ns} short${ns===1?'':'s'}.`, botao:'Fechar'});
+  }catch(err){
+    aviso({titulo:'Não foi possível enviar', texto:(err.servidor ? err.message + ' ' : 'Verifique sua conexão com a internet e tente de novo. ') + 'Sua lista continua preenchida.', botao:'Tentar de novo'});
+  }finally{
+    btn.textContent = original; btn.disabled = false;
+  }
+});
+
+$('btnCopiar').addEventListener('click', async ()=>{
+  const txt = $('exportText'), hint = $('copyHint');
+  txt.select();
+  try{ await navigator.clipboard.writeText(txt.value); hint.textContent = 'Copiado! Cole na janela do macro do CorelDRAW.'; }
+  catch(err){
+    try{ document.execCommand('copy'); hint.textContent = 'Copiado! Cole na janela do macro do CorelDRAW.'; }
+    catch(e2){ hint.textContent = 'Selecione o texto acima e copie manualmente (Ctrl+C).'; }
+  }
+});
+
+reiniciar();
+
+document.querySelectorAll('.nav-item[data-view]').forEach(item=>{
+  item.addEventListener('click', ()=>{
+    const view = item.dataset.view;
+    document.querySelectorAll('.nav-item[data-view]').forEach(n=>n.classList.toggle('active', n.dataset.view===view));
+    ['lista','modelos','ajuda'].forEach(v=>{ $('view-'+v).style.display = (v===view)?'flex':'none'; });
+    window.scrollTo(0,0);
+  });
+});
+document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',()=>q.parentElement.classList.toggle('open')));
+</script>
+</body>
+</html>
