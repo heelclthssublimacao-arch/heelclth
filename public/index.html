@@ -66,6 +66,13 @@ select{appearance:none;}
 .guia p{margin:.6rem 0 0;}
 .guia ol,.guia ul{margin:.6rem 0 0;padding-left:1.2rem;}
 .guia a{color:#e9e9ec;}
+/* o retângulo inteiro é a área de clique: o padding sai do cartão e vai para o título */
+.card.guia{padding:0;}
+.guia summary{padding:1.1rem;-webkit-tap-highlight-color:transparent;}
+.guia > :not(summary){margin-left:1.1rem;margin-right:1.1rem;}
+.guia > :last-child{margin-bottom:1.1rem;}
+.guia[open] summary{padding-bottom:0;}
+.faq-q{-webkit-tap-highlight-color:transparent;}
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50;}
 .ov[hidden]{display:none;}
 .modal{background:#111115;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:1.5rem;width:100%;max-width:480px;max-height:85vh;overflow:auto;text-align:center;}
@@ -88,6 +95,15 @@ tr.err{background:rgba(228,88,88,.06);}
 .bar i{display:block;height:100%;width:0;background:#e0a23a;transition:width .2s;}
 .prog.ok .bar i{background:#4fc27f;}
 .prog-hint{font-size:11px;color:#8a8a90;margin-top:4px;}
+#nl-badge-frame{display:none !important;}
+.tipo{margin-bottom:1.25rem;}
+.tipo .t{font-size:12px;letter-spacing:1px;color:#8a8a90;margin-bottom:8px;}
+.opts{display:flex;flex-wrap:wrap;gap:8px;}
+.opt{position:relative;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.opt input{position:absolute;opacity:0;inset:0;width:100%;height:100%;cursor:pointer;}
+.opt span{display:inline-block;padding:10px 16px;border-radius:99px;background:#1a1a20;border:1px solid rgba(255,255,255,.12);font-size:13px;color:#b4b4ba;}
+.opt input:checked + span{background:#e9e9ec;color:#0a0a0d;border-color:#e9e9ec;font-weight:bold;}
+.opt input:focus-visible + span{outline:2px solid #fff;outline-offset:2px;}
 .m-brand{display:none;}
 .bottom-nav{display:none;}
 @media(max-width:900px){.ajuda-bottom{grid-template-columns:1fr;}}
@@ -145,6 +161,15 @@ tr.err{background:rgba(228,88,88,.06);}
         <div class="rep">
           <label for="rep">NOME DO REPRESENTANTE</label>
           <input type="text" id="rep" placeholder="Nome do representante">
+        </div>
+        <div class="tipo">
+          <div class="t">TIPO DE CAMISA <span class="hint">(pode marcar mais de uma)</span></div>
+          <div class="opts" id="opts">
+            <label class="opt"><input type="checkbox" value="texturizada"><span>Texturizada</span></label>
+            <label class="opt"><input type="checkbox" value="manga_longa"><span>Manga longa</span></label>
+            <label class="opt"><input type="checkbox" value="punhos"><span>Personalização de punhos</span></label>
+          </div>
+          <div class="hint" style="margin-top:6px;">Vale para todas as camisas deste pedido. Se alguma camisa for diferente das outras, escreva o que muda no campo <strong>Observações</strong> da linha dela. Se não marcar nenhuma opção, o pedido segue como camisa padrão.</div>
         </div>
         <div class="table-head">
           <div>
@@ -483,9 +508,9 @@ $('btnEnviar').addEventListener('click', async ()=>{
   const btn = $('btnEnviar'), original = btn.textContent;
   btn.textContent = 'Enviando...'; btn.disabled = true;
   try{
-    const r = await fetch('/api/enviar', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({representante, itens})});
+    const r = await fetch('/api/enviar', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({representante, itens, opcoes:[...document.querySelectorAll('#opts input:checked')].map(i=>i.value)})});
     if(!r.ok){ const j = await r.json().catch(()=>({})); const e = new Error(j.erro || 'falha'); e.servidor = !!j.erro; throw e; }
-    reiniciar(); $('rep').value = '';
+    reiniciar(); $('rep').value = ''; document.querySelectorAll('#opts input').forEach(i=>i.checked=false);
     aviso({tipo:'ok', titulo:'Lista enviada!', texto:`Recebemos a lista de ${representante}: ${nc} camisa${nc===1?'':'s'} e ${ns} short${ns===1?'':'s'}.`, botao:'Fechar'});
   }catch(err){
     aviso({titulo:'Não foi possível enviar', texto:(err.servidor ? err.message + ' ' : 'Verifique sua conexão com a internet e tente de novo. ') + 'Sua lista continua preenchida.', botao:'Tentar de novo'});
