@@ -72,12 +72,14 @@ table.orc{margin-top:12px;}
   <details class="card" id="precosBox">
     <summary><b>Tabela de preços (R$)</b> <span class="muted" id="precosAviso"></span></summary>
     <div class="precos-grid">
-      <label>Camisa (cada)<input type="number" min="0" step="0.01" id="p_camisa"></label>
-      <label>Short (cada)<input type="number" min="0" step="0.01" id="p_short"></label>
-      <label>+ Texturizada (por camisa)<input type="number" min="0" step="0.01" id="p_texturizada"></label>
-      <label>+ Manga longa (por camisa)<input type="number" min="0" step="0.01" id="p_manga_longa"></label>
-      <label>+ Personalização de punhos (por camisa)<input type="number" min="0" step="0.01" id="p_punhos"></label>
+      <label>Camisa tecido padrão<input type="number" min="0" step="0.01" id="p_camisa"></label>
+      <label>Camisa tecido padrão com punho<input type="number" min="0" step="0.01" id="p_camisa_punho"></label>
+      <label>Camisa tecido texturizado<input type="number" min="0" step="0.01" id="p_camisa_text"></label>
+      <label>Manga longa (adicional por camisa)<input type="number" min="0" step="0.01" id="p_manga_longa"></label>
+      <label>Short<input type="number" min="0" step="0.01" id="p_short"></label>
+      <label>Short texturizado<input type="number" min="0" step="0.01" id="p_short_text"></label>
     </div>
+    <div class="muted" style="margin-bottom:10px;">Se o pedido tiver "Texturizada", camisas e shorts usam o preço texturizado. "Punhos" soma a diferença entre a camisa com punho e a padrão.</div>
     <div style="display:flex;gap:10px;align-items:center;"><button class="btn p" id="btnPrecos">Salvar preços</button><span class="muted" id="precosMsg"></span></div>
   </details>
   <div class="anos">
@@ -97,16 +99,20 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 let senha = sessionStorage.getItem('s') || '', dados = [], ano = null, mes = null;
-const PADRAO = {camisa:0, short:0, texturizada:0, manga_longa:0, punhos:0}, CH = Object.keys(PADRAO);
+const PADRAO = {camisa:44.9, camisa_punho:49.9, camisa_text:59.9, manga_longa:0, short:24.9, short_text:34.9}, CH = Object.keys(PADRAO);
 const NOMES = {texturizada:'Texturizada', manga_longa:'Manga longa', punhos:'Personalização de punhos'};
 let precos = {...PADRAO};
 const brl = v => Number(v||0).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
 const r2 = v => Math.round(v * 100) / 100;
 function orcar(e){
   const nc = e.itens.filter(i=>i.tamCamisa).length, ns = e.itens.filter(i=>i.tamShort).length;
-  const linhas = [{d:`${nc} camisa(s) × ${brl(precos.camisa)}`, v:r2(nc*precos.camisa)}];
-  (e.opcoes||[]).forEach(o=>linhas.push({d:`${NOMES[o]||o}: ${nc} × ${brl(precos[o])}`, v:r2(nc*(precos[o]||0))}));
-  if(ns) linhas.push({d:`${ns} short(s) × ${brl(precos.short)}`, v:r2(ns*precos.short)});
+  const ops = e.opcoes || [], tex = ops.includes('texturizada'), pun = ops.includes('punhos'), man = ops.includes('manga_longa');
+  const linhas = [];
+  const pc = tex ? precos.camisa_text : precos.camisa;
+  linhas.push({d:`${nc} camisa(s) ${tex ? 'texturizada(s)' : 'padrão'} × ${brl(pc)}`, v:r2(nc*pc)});
+  if(pun){ const dif = r2(precos.camisa_punho - precos.camisa); linhas.push({d:`Punhos personalizados: ${nc} × ${brl(dif)}`, v:r2(nc*dif)}); }
+  if(man) linhas.push({d:`Manga longa: ${nc} × ${brl(precos.manga_longa)}`, v:r2(nc*precos.manga_longa)});
+  if(ns){ const ps = tex ? precos.short_text : precos.short; linhas.push({d:`${ns} short(s)${tex ? ' texturizado(s)' : ''} × ${brl(ps)}`, v:r2(ns*ps)}); }
   return {linhas, total:r2(linhas.reduce((a,l)=>a+l.v,0))};
 }
 function preencherPrecos(){
